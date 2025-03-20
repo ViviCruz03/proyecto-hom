@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="gral-container">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>BÚSQUEDA DE CLIENTES</h3>
+        <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
+    </div>
+
+    <div class="mt-3">
+        <label for="distr"><b>Seleccione la condición: </b></label>
+        <select id="condicion" class="form-select" aria-label="Default select example">
+            <option selected>Seleccionar condición...</option>
+        </select>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label for="distr"><b>Estado:</b></label>
+            <select class="form-select" aria-label="Default select example" id="estados">
+                <option selected>Seleccionar estado...</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="distr"><b>Municipio:</b></label>
+            <select id="municipio" class="form-select" aria-label="Default select example">
+                <option value="">Seleccionar municipio...</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="distr"><b>Localidad:</b></label>
+            <select id="localidad" class="form-select" aria-label="Default select example">
+                <option value="">Seleccionar localidad...</option>
+            </select>
+        </div>
+        <div class="mt-4 d-flex justify-content-end">
+            <br>
+            <button id="btnConsultar" class="btn btn-primary">BUSCAR</button>
+        </div>
+    </div>
+    <br><br><br>
+    <div class="table-responsive">
+        <table class="table table-bordered" id="resultadosTable">
+            <thead class="table-primary">
+                <tr class="align-bottom">
+                    <th>Status</th>
+                    <th>Nombre de la Unidad</th>
+                    <th>Clase de actividad</th>
+                    <th>N° Personal</th>
+                    <th>Vialidad</th>
+                    <th>N° ext</th>
+                    <th>Letra</th>
+                    <th>C.P</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody id="tablaResultados">
+                <!-- Aquí se insertan los resultados -->
+            </tbody>
+        </table>
+    </div>
+    
+    <br><br><br>
+    <div class="mt-4 d-flex justify-content-end gap-2">
+        <button class="btn btn-danger" id="btnCancelar">LIMPIAR</button><br>
+        <button class="btn btn-success" id="btnSiguiente">ASIGNAR</button>
+    </div>
+
+
+</div>
+
+<script>
+    //Cargar las condiones
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/obtener-condiciones/')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                let condicionSelect = document.getElementById("condicion");
+
+                condicionSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+                data.condiciones.forEach(condicion => {
+                    let option = new Option(condicion, condicion);
+                    condicionSelect.add(option);
+                })
+            })
+    })
+
+    //Cargar estados a la página
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/obtener-filtros/')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                let estadoSelect = document.getElementById("estados");
+                data.estados.forEach(estado => {
+                    let option = new Option(estado, estado);
+                    estadoSelect.add(option);
+                });
+            });
+
+    // Cargar municipios cuando se selecciona un estado
+    document.getElementById("estados").addEventListener("change", function () {
+            let estado = this.value;
+            fetch(`/obtener-municipios/?estado=${estado}`)
+                .then(response => response.json())
+                .then(data => {
+                    let municipioSelect = document.getElementById("municipio");
+                    municipioSelect.innerHTML = "<option value=''>Seleccionar municipio...</option>";
+                    data.municipios.forEach(municipio => {
+                        let option = new Option(municipio, municipio);
+                        municipioSelect.add(option);
+                    });
+                });
+        });
+
+    // Cargar localidades cuando se selecciona un municipio
+    document.getElementById("municipio").addEventListener("change", function () {
+            let municipio = this.value;
+            fetch(`/obtener-localidades/?municipio=${municipio}`)
+                .then(response => response.json())
+                .then(data => {
+                    let localidadSelect = document.getElementById("localidad");
+                    localidadSelect.innerHTML = '<option value="">Seleccionar localidad...</option>';
+                    data.localidades.forEach(localidad => {
+                        let option = new Option(localidad, localidad);
+                        localidadSelect.add(option);
+                    });
+                });
+        });
+    });
+
+    //
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("btnConsultar").addEventListener("click", function () {
+            // Obtener los valores seleccionados
+            let condicion = document.getElementById("condicion").value;
+            let estado = document.getElementById("estados").value;
+            let municipio = document.getElementById("municipio").value;
+            let localidad = document.getElementById("localidad").value;
+
+            // Construir la URL con parámetros
+            let url = `/consultar-datos/?condicion=${encodeURIComponent(condicion)}&estado=${encodeURIComponent(estado)}&municipio=${encodeURIComponent(municipio)}&localidad=${encodeURIComponent(localidad)}`;
+
+            // Hacer la petición AJAX
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Resultados:", data.resultados);
+                    mostrarResultados(data.resultados);
+                })
+                .catch(error => console.error("Error en la consulta:", error));
+        });
+    });
+
+    // Función para mostrar los resultados en una tabla
+    function mostrarResultados(resultados) {
+    let tabla = document.getElementById("tablaResultados");
+    tabla.innerHTML = ""; // Limpiar resultados anteriores
+
+    if (resultados.length === 0) {
+        tabla.innerHTML = "<tr><td colspan='10'>No se encontraron resultados</td></tr>";
+        return;
+    }
+
+    resultados.forEach(item => {
+        let fila = `<tr>
+            <td><input type="checkbox" class="seleccionarUnidad" value="${item.Status}"></td>
+            <td>${item.Nombre_de_la_Unidad_Economica}</td>
+            <td>${item.Nombre_de_clase_de_la_actividad}</td>
+            <td>${item.Descripcion_estrato_personal_ocupado}</td>
+            <td>${item.Nombre_de_la_vialidad}</td>
+            <td>${item.Numero_exterior_o_kilometro}</td>
+            <td>${item.Letra_exterior || 'No disponible'}</td>
+            <td>${item.Codigo_postal || 'No disponible'}</td>
+            <td>${item.Latitud}</td>
+            <td>${item.Longitud}</td>
+            <td>${item.Fecha_de_incorporacion_al_denue || 'No disponible'}</td>
+        </tr>`;
+        tabla.innerHTML += fila;
+    });
+    }
+
+    // Redireccionar al boton  siguiente
+    document.getElementById("btnSiguiente").addEventListener("click", function() {
+    let seleccionados = [];
+    let condicion= document.getElementById("condicion").value;
+    let estado = document.getElementById("estados").value;
+    let municipio=document.getElementById("municipio").value;
+    let localidad = document.getElementById("localidad").value;
+
+    document.querySelectorAll(".seleccionarUnidad:checked").forEach(checkbox => {
+        let fila = checkbox.closest("tr");
+        let unidad = {
+            Nombre: fila.cells[1].textContent,
+            Actividad: fila.cells[2].textContent,
+            Estrato: fila.cells[3].textContent,
+            Vialidad: fila.cells[4].textContent,
+            Numero: fila.cells[5].textContent,
+            Letra: fila.cells[6].textContent,
+            CP: fila.cells[7].textContent,
+            Latitud: fila.cells[8].textContent,
+            Longitud: fila.cells[9].textContent,
+            Fecha: fila.cells[10].textContent
+        };
+        seleccionados.push(unidad);
+    });
+
+    if (seleccionados.length === 0) {
+        alert("Por favor, selecciona al menos una unidad.");
+        return;
+    }
+
+    // Guardamos los datos seleccionados en localStorage para usarlos en seguimiento2.html
+    localStorage.setItem("seleccionados", JSON.stringify(seleccionados));
+    localStorage.setItem("condicion", condicion);
+    localStorage.setItem("estado", estado);
+    localStorage.setItem("municipio", municipio);
+    localStorage.setItem("localidad",localidad);
+
+    // Redireccionar a la siguiente página
+    window.location.href = "/consulta2/";
+    });
+
+    
+
+    // Cancelar los campos de la busqueda
+    document.addEventListener("DOMContentLoaded", function() {
+    
+    const btnCancelar = document.getElementById("btnCancelar");
+    const condicionSelect = document.getElementById("condicion");
+    const estadoSelect = document.getElementById("estados");
+    const municipioSelect = document.getElementById("municipio");
+    const localidadSelect = document.getElementById("localidad");
+    
+    btnCancelar.addEventListener("click", function() {
+        // Restablecer los filtros a sus valores por defecto
+        condicionSelect.selectedIndex = 0;
+        estadoSelect.selectedIndex = 0;
+        municipioSelect.selectedIndex = 0;
+        localidadSelect.selectedIndex = 0;
+        
+        // Borrar los resultados mostrados
+    const resultadosTable = document.getElementById("resultadosTable");
+        if (resultadosTable) {
+        resultadosTable.innerHTML = "";  // Borra el contenido de la tabla
+            }
+        });
+    });
+    
+
+</script>
+
+
+{% endblock %}

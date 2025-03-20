@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="gral-container">
+    <h3>CONSULTAS GUARDADAS</h3>
+    <br><br>
+    <div class="list-group">
+        <a href="" class="list-group-item list-group-item-action" aria-current="true">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Consulta del 24 de febrero</h5>
+            <small>3 days ago</small>
+          </div>
+          <small>Consultar</small>
+        </a>
+        <a href="" class="list-group-item list-group-item-action" aria-current="true">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Consulta del 24 de febrero</h5>
+            <small>3 days ago</small>
+          </div>
+          <small>Consultar</small>
+        </a>
+        <a href="" class="list-group-item list-group-item-action" aria-current="true">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Consulta del 24 de febrero</h5>
+            <small>3 days ago</small>
+          </div>
+          <small>Consultar</small>
+        </a>      
+      </div>
+    <br><br><br>
+    <div class="mt-4 d-flex justify-content-end">
+        <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'" >CANCELAR</button><br>
+    </div>
+
+</div>
+
+
+{% endblock %}

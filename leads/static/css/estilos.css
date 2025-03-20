@@ -1,0 +1,178 @@
+/* @import 'https://fonts.googleapis.com/css?family=Montserrat:300,400,700'; */
+
+
+html,
+body{
+    background-color: #77A2E8;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* IMAGENES */
+
+.logo{
+    max-width: 150px;
+    margin-bottom: 20px;
+    align-items: center;
+    text-align: center;
+}
+.img-fluid{
+    max-width: auto;
+}
+
+/* PANTALLA INICIO */
+
+.card_inicio{
+    background-color: white;
+    border-radius: 25px;
+    padding: 80px;
+    text-align: center;
+    max-width: 900px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: 3px solid #4a80d6;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PANTALLA LOGIN */
+
+.card_login{
+    background-color: white;
+    border-radius: 25px;
+    padding: 80px;
+    text-align: center;
+    max-width: 900px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: 3px solid #4a80d6;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PANTALLA ACCION */
+.accion_container1{
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 30px;
+    padding: 40px;
+    margin: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+.accion_container2 {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* Espacio entre tarjetas */
+}
+
+.card_a {
+    background-color: #2D5FBB;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    width: 300px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.iconac {
+    width: 40px; /* Ajusta el tamaño del icono */
+}
+
+.btnconac {
+    background-color: white;
+    color: #2e5ab3;
+    border: none;
+    padding: 8px 70px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    
+}
+
+/* PANTALLA FILTRADO ASESOR */
+.gral-container {
+    flex-grow: 1;
+    background: white;
+    border-radius: 25px;
+    padding: 40px;
+    margin: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* TABLA DE CONSULTA 2 */
+td {
+    word-wrap: break-word;
+    max-width: 200px; /* Ajusta el tamaño */
+    white-space: normal; /* Permite que el texto se divida */
+    max-width: 200px;  /* Ajusta el ancho máximo */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
+}
+
+.table td, .table th {
+    white-space: normal !important; /* Permitir que el texto se ajuste */
+    word-wrap: break-word; /* Romper palabras largas */
+    max-width: 300px; /* Opcional: limitar el ancho */
+  }.table td, .table th {
+    white-space: normal !important; /* Permitir que el texto se ajuste */
+    word-wrap: break-word; /* Romper palabras largas */
+    max-width: 300px; /* Opcional: limitar el ancho */
+  }
+
+
+  /* MAPAS */
+
+#map {
+    height: 100%;
+}
+  
+  /* 
+   * Optional: Makes the sample page fill the window. 
+   */
+
+/* ESTILOS ASIGNAR ASESOR */
+
+.modal {
+    display: none; /* Hide the modal by default */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
