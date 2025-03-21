@@ -4,7 +4,7 @@
 {% block content %}
 <div class="gral-container">
     <div class="d-flex justify-content-between align-items-center">
-        <h3>BÚSQUEDA DE CLIENTES</h3>
+        <h3>BÚSQUEDA DE LEADS</h3>
         <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
     </div>
 
@@ -64,13 +64,28 @@
     </div>
     
     <br><br><br>
-    <div class="mt-4 d-flex justify-content-end gap-2">
-        <button class="btn btn-danger" id="btnCancelar">LIMPIAR</button><br>
-        <button class="btn btn-success" id="btnSiguiente">ASIGNAR</button>
+    <div class="d-flex justify-content-end gap-3">
+        <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'">ATRAS</button>
+        <button class="btn btn-warning" id="btnCancelar">LIMPIAR</button><br>
+        <button class="btn btn-success" id="btnSiguiente">SIGUIENTE</button>
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Aviso</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalMessage">
+            <!-- Aquí se insertará el mensaje dinámicamente -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
     </div>
-
-
 </div>
+
 
 <script>
     //Cargar las condiones
@@ -192,6 +207,9 @@
     let estado = document.getElementById("estados").value;
     let municipio=document.getElementById("municipio").value;
     let localidad = document.getElementById("localidad").value;
+    let modalMessage = document.getElementById("modalMessage");
+    let modal = new bootstrap.Modal(document.getElementById("staticBackdrop")); // Obtener instancia del modal
+
 
     document.querySelectorAll(".seleccionarUnidad:checked").forEach(checkbox => {
         let fila = checkbox.closest("tr");
@@ -211,7 +229,9 @@
     });
 
     if (seleccionados.length === 0) {
-        alert("Por favor, selecciona al menos una unidad.");
+        modalMessage.textContent ="Por favor, selecciona al menos una unidad.";
+        modal.show();
+        // alert("Por favor, selecciona al menos una unidad.");
         return;
     }
 
@@ -248,10 +268,9 @@
     const resultadosTable = document.getElementById("resultadosTable");
         if (resultadosTable) {
         resultadosTable.innerHTML = "";  // Borra el contenido de la tabla
-            }
-        });
+        }
     });
-    
+});
 
 </script>
 

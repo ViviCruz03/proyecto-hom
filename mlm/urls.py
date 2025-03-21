@@ -21,8 +21,8 @@ from leads import views
 
 urlpatterns = [
     path('', include('leads.urls')),
-    path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+    path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('login/', views.signin, name='login'),
     path('salir/', views.salir, name='salir'),
@@ -30,5 +30,7 @@ urlpatterns = [
     path('crearConsulta/',views.crearConsulta, name='crear_consulta'),
     path('consulta2/', views.consulta2,name='consulta2'),
     path('segConsulta/',views.segConsulta, name='seg_consulta' ),
-    path('dash/', views.dash, name='dash')
+    path('dash/', views.dash, name='dash'),
+    path('verAsesor/', views.verAsesor, name='verAsesor'),
+    path('conAsesor', views.conAsesor, name='conAsesor')
     ]

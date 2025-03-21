@@ -7,11 +7,7 @@ from django.db import IntegrityError
 from .models import *  
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.contrib.auth.decorators import user_passes_test
 import json
-
-
-
 
 
 #Pantalla de home
@@ -37,7 +33,7 @@ def signin (request):
             login(request, user)
             return redirect('accion')
 
-#Funcion de salir de sesión
+#Salir de sesión
 @login_required        
 def salir(request):
     logout(request)
@@ -50,7 +46,6 @@ def accion(request):
 
 #Crear consultas a partir de estado, municipio y localidad
 @login_required
-@user_passes_test(Supervisor)
 def crearConsulta(request):
     return render(request, 'consulta1.html')
 
@@ -59,12 +54,6 @@ class UniEconomicaListView(ListView):
     model = UniEconomicas
     template_name = 'consulta2.html'
     context_object_name = 'unis'
-
-#Enlistar los asesores
-class AsesoresView(ListView):
-    model= Asesor
-    template_name='consulta1.tml'
-    context_object_name = 'asesores'
 
 #Trae las unidades desde la base de datos
 def obtener_unidades(request):
@@ -91,7 +80,7 @@ def obtener_condiciones(request):
     else:
         return JsonResponse({'condiciones':[]}, status=404)
 
-#Filtrar los estados, municipios y localidades
+#Filtrar los estados existentes
 def obtener_filtros(request):
     estados = UniEconomicas.objects.values_list('Entidad_federetiva', flat=True).distinct()
     if estados.exists():
@@ -157,6 +146,33 @@ def consultar_datos(request):
     # Convertir resultados a lista y devolver JSON
     return JsonResponse({'resultados': list(resultados)})
 
+#Vista a consulta2 (asignar asesores a unidades)
+@login_required
+def consulta2(request):
+    return render(request, 'consulta2.html')
+
+# Obtener unidades económicas asignadas a un asesor
+def obtener_unidades_por_asesor(request):
+    asesor_id = request.GET.get('asesor_id')
+
+    if not asesor_id:
+        return JsonResponse({'error': 'No se proporcionó un asesor'}, status=400)
+
+    try:
+        asesor = Asesor.objects.get(id=asesor_id)
+        unidades = UniEconomicas.objects.filter(asesor=asesor).values(
+            'Nombre_de_la_Unidad_Economica',
+            'Entidad_federetiva',
+            'Municipio',
+            'Localidad',
+            'Latitud',
+            'Longitud',
+            # 'Status'
+        )
+        return JsonResponse({'unidades': list(unidades)})
+    
+    except Asesor.DoesNotExist:
+        return JsonResponse({'error': 'Asesor no encontrado'}, status=404)
 
 #Obtener los asesores
 def obtener_asesores(request):
@@ -167,8 +183,7 @@ def obtener_asesores(request):
 
     return JsonResponse({'asesores': asesor_data})
 
-
-
+#Asignar unidades a asesor
 def asignar_asesor(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -179,8 +194,8 @@ def asignar_asesor(request):
             asesor = Asesor.objects.get(id=asesor_id)
             for unidad_data in unidades:
                 unidad = UniEconomicas.objects.get(Nombre_de_la_Unidad_Economica=unidad_data['Nombre'])
-                # Aquí, asignamos el asesor a la unidad (si tienes un campo en UniEconomicas para esto)
-                unidad.asesor = asesor  # Asumiendo que hay un campo 'asesor' en UniEconomicas
+                # Aquí, asignamos el asesor a la unidad
+                unidad.asesor = asesor  
                 unidad.save()
             
             return JsonResponse({'success': True})
@@ -192,11 +207,31 @@ def asignar_asesor(request):
 
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
-
-#Mostrar las unidades
+#Vista a verAsesor desde el Supervisor
 @login_required
-def consulta2(request):
-    return render(request, 'consulta2.html')
+def verAsesor(request):
+    return render(request, 'verAsesor.html')
+
+#Vista unidades del asesor
+@login_required
+def conAsesor(request):
+    return render(request, 'conAsesor.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Continuar el seguimiento de una consulta
@@ -208,5 +243,3 @@ def segConsulta(request):
 @login_required
 def dash(request):
     return render(request, 'dash.html')
-
-

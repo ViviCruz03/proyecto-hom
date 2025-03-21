@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="accion_container1">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>VER ASESORES</h3>
+        <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
+    </div>
+    <br>
+    <div>
+        <label ><b>Seleccione el asesor: </b></label>
+        <div class="d-flex gap-4">
+            <div class="">
+                <select id="asesor1Select" class="form-select" >
+                    <option selected value="">Seleccionar asesor...</option>
+                </select>
+            </div>
+            <div>
+                <button id="btnBuscar" class="btn btn-primary">Ir</button>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <div>
+        <p><b>Unidades económicas asignadas:</b></p>
+        <div class="table-responsive">
+          <table class="table table-bordered" id="tablaSeguimiento">
+            <thead class="table-primary">
+              <tr>
+                <th>Nombre de la unidad economica</th>
+                <th>Estado</th>
+                <th>Municipio</th>
+                <th>Localidad</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+      
+            </tbody>
+          </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarAsesores();
+        document.getElementById("btnBuscar").addEventListener("click", obtenerUnidades);
+    });
+
+    function cargarAsesores() {
+        fetch("{% url 'obtener_asesores' %}")
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById("asesor1Select");
+            select.innerHTML = '<option value="">Seleccione un asesor...</option>';
+            data.asesores.forEach(asesor => {
+                let option = document.createElement("option");
+                option.value = asesor.id;
+                option.textContent = asesor.nombre;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error al obtener asesores:", error));
+    }
+
+    function obtenerUnidades() {
+        let asesorId = document.getElementById("asesor1Select").value;
+        if (!asesorId) {
+            alert("Seleccione un asesor.");
+            return;
+        }
+
+        fetch(`/obtener_unidades_por_asesor?asesor_id=${asesorId}`)
+        .then(response => response.json())
+        .then(data => {
+            let tbody = document.querySelector("#tablaSeguimiento tbody");
+            tbody.innerHTML = "";
+            
+            if (data.unidades.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7' class='text-center'>No hay unidades asignadas</td></tr>";
+                return;
+            }
+
+            data.unidades.forEach(unidad => {
+                let row = `<tr>
+                    <td>${unidad.Nombre_de_la_Unidad_Economica}</td>
+                    <td>${unidad.Entidad_federetiva}</td>
+                    <td>${unidad.Municipio}</td>
+                    <td>${unidad.Localidad}</td>
+                    <td>${unidad.Latitud}</td>
+                    <td>${unidad.Longitud}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        })
+        .catch(error => console.error("Error al obtener unidades:", error));
+    }
+</script>
+
+
+{% endblock %}
