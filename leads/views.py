@@ -194,7 +194,7 @@ def obtener_unidades_por_asesorSu(request):
             'Localidad',
             'Latitud',
             'Longitud',
-            # 'Status'
+            'estado'
         )
         return JsonResponse({'unidades': list(unidades)})
 

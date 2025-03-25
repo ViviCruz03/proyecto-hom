@@ -9,10 +9,10 @@
     </div>
     <br>
     <div>
-        <label ><b>Seleccione el asesor: </b></label>
+        <label><b>Seleccione el asesor: </b></label>
         <div class="d-flex gap-4">
             <div class="">
-                <select id="asesor1Select" class="form-select" >
+                <select id="asesor1Select" class="form-select">
                     <option selected value="">Seleccionar asesor...</option>
                 </select>
             </div>
@@ -25,22 +25,33 @@
     <div>
         <p><b>Unidades económicas asignadas:</b></p>
         <div class="table-responsive">
-          <table class="table table-bordered" id="tablaSeguimiento">
-            <thead class="table-primary">
-              <tr>
-                <th>Nombre de la unidad economica</th>
-                <th>Estado</th>
-                <th>Municipio</th>
-                <th>Localidad</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-      
-            </tbody>
-          </table>
+            <table class="table table-bordered" id="tablaSeguimiento">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Nombre de la unidad economica</th>
+                        <th>Estado</th>
+                        <th>Municipio</th>
+                        <th>Localidad</th>
+                        <th>Latitud</th>
+                        <th>Longitud</th>
+                        <th>
+                            <div class="d-flex justify-content-between">
+                                <!-- Filtro dentro de la columna -->
+                                <select id="filtroEstado" class="form-select" style="width: auto; display: inline-block;" disabled>
+                                    <option value="">Status</option>
+                                    <option value="Prospecto">Prospecto</option>
+                                    <option value="Cliente Nuevo">Cliente Nuevo</option>
+                                    <option value="Ya era Cliente">Ya era Cliente</option>
+                                    <option value="Descartado">Descartado</option>
+                                    <option value="En Atención">En Atención</option> <!-- Agregado "En atención" -->
+                                </select>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -49,6 +60,8 @@
     document.addEventListener("DOMContentLoaded", function() {
         cargarAsesores();
         document.getElementById("btnBuscar").addEventListener("click", obtenerUnidades);
+        document.getElementById("filtroEstado").addEventListener("change", filtrarPorEstado);
+        document.getElementById("asesor1Select").addEventListener("change", habilitarFiltroEstado);
     });
 
     function cargarAsesores() {
@@ -79,7 +92,7 @@
         .then(data => {
             let tbody = document.querySelector("#tablaSeguimiento tbody");
             tbody.innerHTML = "";
-            
+
             if (data.unidades.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='7' class='text-center'>No hay unidades asignadas</td></tr>";
                 return;
@@ -93,13 +106,40 @@
                     <td>${unidad.Localidad}</td>
                     <td>${unidad.Latitud}</td>
                     <td>${unidad.Longitud}</td>
+                    <td class="estado">${unidad.estado}</td> <!-- Columna de estado -->
                 </tr>`;
                 tbody.innerHTML += row;
             });
         })
         .catch(error => console.error("Error al obtener unidades:", error));
     }
-</script>
 
+    function filtrarPorEstado() {
+        const estadoSeleccionado = document.getElementById("filtroEstado").value.toLowerCase(); // Convertir a minúsculas para evitar problemas de mayúsculas
+        const filas = document.querySelectorAll("#tablaSeguimiento tbody tr");
+
+        filas.forEach(fila => {
+            const estadoUnidad = fila.querySelector(".estado").textContent.toLowerCase(); // Filtrar por el texto de la columna
+
+            // Verificar si el estado seleccionado es vacío o si el estado de la unidad coincide
+            if (estadoSeleccionado === "" || estadoUnidad.includes(estadoSeleccionado)) {
+                fila.style.display = "";  // Mostrar fila
+            } else {
+                fila.style.display = "none";  // Ocultar fila
+            }
+        });
+    }
+
+    function habilitarFiltroEstado() {
+        // Habilitar el filtro de estado solo si hay un asesor seleccionado
+        const asesorId = document.getElementById("asesor1Select").value;
+        const filtroEstado = document.getElementById("filtroEstado");
+        if (asesorId) {
+            filtroEstado.disabled = false;  // Habilitar filtro de estado
+        } else {
+            filtroEstado.disabled = true;  // Deshabilitar filtro de estado si no hay asesor seleccionado
+        }
+    }
+</script>
 
 {% endblock %}
