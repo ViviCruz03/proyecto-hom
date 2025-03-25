@@ -19,18 +19,43 @@ from django.urls import path
 from django.conf.urls import include
 from leads import views
 
+
+
 urlpatterns = [
-    path('', include('leads.urls')),
-    path('', views.home, name='home'),
+    path('leads/', include('leads.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
+
+    path('', views.home, name='home'),
     path('login/', views.signin, name='login'),
     path('salir/', views.salir, name='salir'),
+
+    # SUPERVISOR ------
     path('accion/', views.accion, name='accion'),
-    path('crearConsulta/',views.crearConsulta, name='crear_consulta'),
+    path('consulta1/',views.consulta1, name='consulta1'),
     path('consulta2/', views.consulta2,name='consulta2'),
     path('segConsulta/',views.segConsulta, name='seg_consulta' ),
     path('dash/', views.dash, name='dash'),
-    path('verAsesor/', views.verAsesor, name='verAsesor'),
-    path('conAsesor', views.conAsesor, name='conAsesor')
+    path('verAsesor/', views.verAsesor, name='verAsesor'), #ver asesores y sus unidades asignadas
+    path('obtener-unidades/', views.obtener_unidades, name='obtener-unidades'),
+    path('obtener-condiciones/',views.obtener_condiciones, name='obtener-condiciones'),
+    path('obtener-filtros/', views.obtener_filtros, name='obtener-filtros'),
+    path('obtener-municipios/', views.obtener_municipios, name='obtener_municipios'),
+    path('obtener-localidades/', views.obtener_localidades, name='obtener_localidades'),
+    path('consultar-datos/', views.consultar_datos, name='consultar_datos'),
+    path('obtener-asesores/', views.obtener_asesores, name='obtener_asesores'),
+    path('asignar-asesor/', views.asignar_asesor, name='asignar_asesor'),
+    path('obtener_unidades_por_asesorSu/', views.obtener_unidades_por_asesorSu, name='obtener_unidades_por_asesorSu'),
+    
+
+    #ASESORES -------------
+    path('accionAses/',views.accionAses, name='accionAses'),
+    path('asesorSeg/',views.asesorSeg, name='asesorSeg'),
+    path('obtener_unidades_por_asesor/',views.obtener_unidades_por_asesor, name="obtener_unidades_por_asesor"),
+    path('obtener_unidades_por_asesor/', views.obtener_unidades_por_asesor, name='obtener_unidades_por_asesor'),
+    path('actualizar_estado_unidad/', views.actualizar_estado_unidad, name='actualizar_estado_unidad'),
+
+
+    
+
     ]

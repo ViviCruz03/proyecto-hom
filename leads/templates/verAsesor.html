@@ -74,7 +74,7 @@
             return;
         }
 
-        fetch(`/obtener_unidades_por_asesor?asesor_id=${asesorId}`)
+        fetch(`/obtener_unidades_por_asesorSu?asesor_id=${asesorId}`)
         .then(response => response.json())
         .then(data => {
             let tbody = document.querySelector("#tablaSeguimiento tbody");

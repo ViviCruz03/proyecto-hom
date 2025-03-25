@@ -1,40 +1,78 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block content %}
 <div class="gral-container">
-    <h3>CONSULTAS GUARDADAS</h3>
-    <br><br>
-    <div class="list-group">
-        <a href="" class="list-group-item list-group-item-action" aria-current="true">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Consulta del 24 de febrero</h5>
-            <small>3 days ago</small>
-          </div>
-          <small>Consultar</small>
-        </a>
-        <a href="" class="list-group-item list-group-item-action" aria-current="true">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Consulta del 24 de febrero</h5>
-            <small>3 days ago</small>
-          </div>
-          <small>Consultar</small>
-        </a>
-        <a href="" class="list-group-item list-group-item-action" aria-current="true">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Consulta del 24 de febrero</h5>
-            <small>3 days ago</small>
-          </div>
-          <small>Consultar</small>
-        </a>      
-      </div>
-    <br><br><br>
-    <div class="mt-4 d-flex justify-content-end">
-        <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'" >CANCELAR</button><br>
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>UNIDADES ECONOMICAS ASIGNADAS</h3>
+        <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
     </div>
-
+    <br><br>
+    <div class="table-responsive">
+        <table class="table table-bordered" id="tablaSeguimiento">
+            <thead class="table-primary">
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre de la unidad económica</th>
+                    <th>Estado</th>
+                    <th>Municipio</th>
+                    <th>Localidad</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUnidades">
+                <!-- Las filas de las unidades económicas se agregarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        obtenerUnidades();  // Llamamos a la función cuando la página se haya cargado
+    });
+
+    function obtenerUnidades() {
+        fetch('/obtener_unidades_por_asesor')  // Asegúrate de que esta URL es la correcta
+        .then(response => response.json())
+        .then(data => {
+            if (data.unidades) {
+                mostrarUnidades(data.unidades);
+            } else {
+                console.error("No se encontraron unidades");
+            }
+        })
+        .catch(error => console.error("Error al obtener unidades:", error));
+    }
+
+    function mostrarUnidades(unidades) {
+        let tbody = document.getElementById("tablaUnidades");
+        tbody.innerHTML = "";  // Limpiar cualquier contenido previo
+
+        if (unidades.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='8' class='text-center'>No hay unidades asignadas</td></tr>";
+            return;
+        }
+
+        unidades.forEach(unidad => {
+            let row = `
+                <tr>
+                    <td>${unidad.id}</td>
+                    <td>${unidad.Nombre_de_la_Unidad_Economica}</td>
+                    <td>${unidad.Entidad_federetiva}</td>
+                    <td>${unidad.Municipio}</td>
+                    <td>${unidad.Localidad}</td>
+                    <td>${unidad.Latitud}</td>
+                    <td>${unidad.Longitud}</td>
+                    <td>${unidad.estado}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+</script>
+
 
 
 {% endblock %}

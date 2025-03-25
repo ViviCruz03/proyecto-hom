@@ -2,32 +2,18 @@
 {% load static %}
 
 {% block content %}
-
-<!-- ASIGNAR PARA FUNCION DEL ASESOR CON SUS CONSULTAS
-AGREGAR LA RUTA Y LA VISTA NUEVA -->
-
 <div class="accion_container1 ">
     <div class="d-flex justify-content-between align-items-center">
-        <h3>ASESOR: <b>{{ user.get_username }}</b> </h3>
+        <h3 class="text-uppercase">ASESOR: <b>{{ user.get_username }}</b> </h3>
         <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
     </div>
     <br><br>
 
     <div class="accion_container2">
         <div class="card_a py-4">
-            <p><b>ASIGNAR LEADS</b></p>
+            <p><b>SEGUIMIENTO LEADS</b></p>
             <img src="{% static 'img/icono1.png' %}" alt="Crear consulta" class="iconac">
-            <button class="btnconac" onclick="window.location.href='{% url 'crear_consulta' %}'">Ir</button>
-        </div>
-        <div class="card_a py-4">
-            <p><b>SEGUIMIENTO </b></p>
-            <img src="{% static 'img/icono2.png' %}" alt="Seguimiento de consulta" class="iconac">
-            <button class="btnconac" onclick="window.location.href='{% url 'seg_consulta' %}'">Ir</button>
-        </div>
-        <div class="card_a py-4">
-            <p><b>DASHBOARD</b></p>
-            <img src="{% static 'img/icono3.png' %}" alt="Dashboard" class="iconac">
-            <button class="btnconac" onclick="window.location.href='{% url 'dash' %}'">Ir</button>
+            <button class="btnconac" onclick="window.location.href='{% url 'asesorSeg' %}'">Ir</button>
         </div>
     </div>
     <br><br><br>

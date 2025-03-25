@@ -15,6 +15,8 @@ tipos = [
     ('4','Cuenta ganada'),
     ('5','Descartado')
 ]
+
+
 class Estado(models.Model):
     ESTADOS = [
     ('AGS', 'Aguascalientes'),
@@ -73,6 +75,7 @@ class Sucursal(models.Model):
 
 #Table Supervisor
 class Supervisor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='supervisor', verbose_name='Usuario', null=True)
     nomSuper= models.CharField(max_length=250, verbose_name='Supervisor')
     sucursal= models.ForeignKey('Sucursal', on_delete=models.CASCADE, verbose_name='Sucursal')
 
@@ -81,6 +84,7 @@ class Supervisor(models.Model):
 
 #Table Asesor
 class Asesor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='asesor', verbose_name='Usuario', null=True)
     nomAses= models.CharField(max_length=250, verbose_name="Asesor")
     rutaAses=models.CharField(max_length=250, verbose_name='Ruta')
     supervisor=models.ForeignKey('Supervisor', on_delete=models.CASCADE, verbose_name='Supervisor')
@@ -90,6 +94,13 @@ class Asesor(models.Model):
 
 #Table Unidades Economicas
 class UniEconomicas(models.Model):
+    ESTADO_CHOICES = [
+        ('Prospecto', 'Prospecto'),
+        ('Cliente Nuevo', 'Cliente Nuevo'),
+        ('Ya era Cliente', 'Ya era Cliente'),
+        ('Descartado', 'Descartado'),
+    ]
+
     id_Uni=models.CharField(max_length=200, verbose_name="ID Unidades economicas", null=True)
     CleeUni=models.CharField(max_length=100, verbose_name="Clee", null=True)
     Nombre_de_la_Unidad_Economica=models.CharField(max_length=250, verbose_name="Nombre de la unidad Economica", null=True)
@@ -110,7 +121,9 @@ class UniEconomicas(models.Model):
     Latitud=models.CharField(max_length=200, verbose_name="Latitud", null=True)
     Longitud=models.CharField(max_length=200, verbose_name="Longitud", null=True)
     Fecha_de_incorporacion_al_denue=models.CharField(max_length=20, verbose_name="Fecha de incorporación al denue", null=True)
-    asesor = models.ForeignKey(Asesor, on_delete=models.CASCADE, verbose_name="Asesor", null=True, blank=True)
+    asesor = models.ForeignKey(Asesor, on_delete=models.CASCADE, verbose_name="Asesor", null=True, blank=True, related_name="unidades")
+    estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='Prospecto')
+    FechaEdicion = models.DateField(null=True, blank=True)
 
 
 

@@ -133,4 +133,5 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
 IMPORT_EXPORT_IMPORT_ENCODING = "utf-8"
+LOGIN_REDIRECT_URL = '/'  # O a cualquier página que prefieras después de iniciar sesión
 

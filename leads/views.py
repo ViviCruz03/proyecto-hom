@@ -4,49 +4,76 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate #Biblioteca de django que permite crear una coockie para la sesión del usuario
 from django.db import IntegrityError
-from .models import *  
+from .models import *
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import json
 
 
+#----- GENERAL-----
 #Pantalla de home
-def home (request):
-    return render(request, 'index.html')
+def home(request):
+    user_group = None
+    if request.user.is_authenticated:
+        if request.user.groups.filter(name='Supervisor').exists():
+            user_group = 'Supervisor'
+        elif request.user.groups.filter(name='Asesor').exists():
+            user_group = 'Asesor'
+
+    return render(request, 'index.html', {'user_group': user_group})
 
 #Inicio de sesión
-def signin (request):
+def signin(request):
     if request.method == 'GET':
-        return render(request, 'login.html',{
-        'form': AuthenticationForm
-        })
+        return render(request, 'login.html', {'form': AuthenticationForm})
     else:
-        user=authenticate (
-            request, username=request.POST['username'], password=request.POST
-            ['password'])
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user is None:
             return render(request, 'login.html', {
                 'form': AuthenticationForm,
                 'error': 'El nombre o la contraseña son incorrectos'
-        })
+            })
         else:
             login(request, user)
-            return redirect('accion')
+
+            # Verificar si el usuario es Supervisor
+            if user.groups.filter(name='Supervisor').exists():
+                try:
+                    supervisor = Supervisor.objects.get(user=user)
+                    return redirect('accion')  # Supervisor redirigido a 'accion'
+                except Supervisor.DoesNotExist:
+                    return redirect('index')  # Si no se encuentra el supervisor, redirige a la página de inicio
+
+            # Verificar si el usuario es Asesor
+            elif user.groups.filter(name='Asesor').exists():
+                try:
+                    asesor = Asesor.objects.get(user=user)
+                    return redirect('accionAses')  # Asesor redirigido a 'accionAses'
+                except Asesor.DoesNotExist:
+                    # Si el asesor no tiene un registro en la base de datos, se redirige a inicio
+                    return render('index')
+
+            else:
+                return redirect('index')  # Si no es supervisor ni asesor, redirigir al inicio
 
 #Salir de sesión
-@login_required        
+@login_required
 def salir(request):
     logout(request)
     return redirect('index')
 
-#Redirigir a la pantalla acción       
+
+#------SUPERVISOR-----------
+
+#Redirigir a la pantalla acción del supervisor
 @login_required
 def accion(request):
     return render(request, 'accion.html')
 
 #Crear consultas a partir de estado, municipio y localidad
 @login_required
-def crearConsulta(request):
+def consulta1(request):
     return render(request, 'consulta1.html')
 
 #Enlista las unidades econónicas
@@ -59,11 +86,11 @@ class UniEconomicaListView(ListView):
 def obtener_unidades(request):
     unidades = UniEconomicas.objects.all().values(
         'Nombre_de_la_Unidad_Economica',
-        'Nombre_de_clase_de_la_actividad', 
-        'Descripcion_estrato_personal_ocupado', 
-        'Nombre_de_la_vialidad', 
-        'Numero_exterior_o_kilometro', 
-        'Letra_exterior', 
+        'Nombre_de_clase_de_la_actividad',
+        'Descripcion_estrato_personal_ocupado',
+        'Nombre_de_la_vialidad',
+        'Numero_exterior_o_kilometro',
+        'Letra_exterior',
         'Codigo_postal',
         'Latitud',
         'Longitud',
@@ -132,13 +159,13 @@ def consultar_datos(request):
     # Realizar la consulta con los filtros aplicados
     resultados = UniEconomicas.objects.filter(**filtros).values(
         'Nombre_de_la_Unidad_Economica',
-        'Nombre_de_clase_de_la_actividad', 
-        'Descripcion_estrato_personal_ocupado', 
-        'Nombre_de_la_vialidad', 
-        'Numero_exterior_o_kilometro', 
-        'Letra_exterior', 
+        'Nombre_de_clase_de_la_actividad',
+        'Descripcion_estrato_personal_ocupado',
+        'Nombre_de_la_vialidad',
+        'Numero_exterior_o_kilometro',
+        'Letra_exterior',
         'Codigo_postal',
-        'Latitud', 
+        'Latitud',
         'Longitud',
         'Fecha_de_incorporacion_al_denue'
         )
@@ -152,7 +179,7 @@ def consulta2(request):
     return render(request, 'consulta2.html')
 
 # Obtener unidades económicas asignadas a un asesor
-def obtener_unidades_por_asesor(request):
+def obtener_unidades_por_asesorSu(request):
     asesor_id = request.GET.get('asesor_id')
 
     if not asesor_id:
@@ -170,7 +197,7 @@ def obtener_unidades_por_asesor(request):
             # 'Status'
         )
         return JsonResponse({'unidades': list(unidades)})
-    
+
     except Asesor.DoesNotExist:
         return JsonResponse({'error': 'Asesor no encontrado'}, status=404)
 
@@ -195,9 +222,9 @@ def asignar_asesor(request):
             for unidad_data in unidades:
                 unidad = UniEconomicas.objects.get(Nombre_de_la_Unidad_Economica=unidad_data['Nombre'])
                 # Aquí, asignamos el asesor a la unidad
-                unidad.asesor = asesor  
+                unidad.asesor = asesor
                 unidad.save()
-            
+
             return JsonResponse({'success': True})
 
         except Asesor.DoesNotExist:
@@ -212,34 +239,72 @@ def asignar_asesor(request):
 def verAsesor(request):
     return render(request, 'verAsesor.html')
 
-#Vista unidades del asesor
-@login_required
-def conAsesor(request):
-    return render(request, 'conAsesor.html')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Continuar el seguimiento de una consulta
+#Continuar el seguimiento de una consulta del supervisor
 @login_required
 def segConsulta(request):
     return render(request, 'seguimiento1.html')
 
-#Dashboard
+
+
+#Dashboard del supervisor
 @login_required
 def dash(request):
     return render(request, 'dash.html')
+
+
+# ----ASESOR--------
+
+#Vista a acciones del asesor
+def accionAses(request):
+    return render(request, 'accionAses.html')
+
+#Vista a seguimiento del asesor
+def asesorSeg(request):
+    return render(request, 'asesorSeg.html')
+
+def obtener_unidades_por_asesor(request):
+    try:
+        # Obtener el asesor basado en el usuario autenticado
+        asesor = Asesor.objects.get(user=request.user)
+        
+        # Obtener las unidades económicas asignadas a ese asesor
+        unidades = UniEconomicas.objects.filter(asesor=asesor).values(
+            'id', 
+            'Nombre_de_la_Unidad_Economica', 
+            'Entidad_federetiva',
+            'Municipio', 
+            'Localidad', 
+            'Latitud', 
+            'Longitud',
+            'estado'
+        )
+
+        return JsonResponse({'unidades': list(unidades)})
+
+    except Asesor.DoesNotExist:
+        return JsonResponse({'error': 'Asesor no encontrado'}, status=404)
+    
+def actualizar_estado_unidad(request):
+    if request.method == "POST":
+        try:
+            # Obtener los datos del POST
+            data = json.loads(request.body)
+            unidad_id = data.get('id')
+            nuevo_estado = data.get('nuevo_estado')
+
+            # Buscar la unidad económica
+            unidad = UniEconomicas.objects.get(id=unidad_id)
+
+            # Actualizar el estado
+            unidad.estado = nuevo_estado
+            unidad.save()
+
+            return JsonResponse({'success': True, 'message': 'Estado actualizado con éxito'})
+
+        except UniEconomicas.DoesNotExist:
+            return JsonResponse({'error': 'Unidad económica no encontrada'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)

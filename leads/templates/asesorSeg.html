@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="gral-container">
+    <h3>UNIDADES ECONÓMICAS ASIGNADAS</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered" id="tablaSeguimiento">
+            <thead class="table-primary">
+                <tr>
+                    <th>Nombre de la unidad económica</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí se agregarán dinámicamente las filas -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para editar el estado -->
+<div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalStatusLabel">Actualizar estado de la unidad económica</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formStatusUpdate">
+                    <div class="mb-3">
+                        <label for="estadoSelect" class="form-label">Estado de la unidad</label>
+                        <select id="estadoSelect" class="form-select">
+                            <option value="Prospecto">Prospecto</option>
+                            <option value="Cliente Nuevo">Cliente Nuevo</option>
+                            <option value="Ya era Cliente">Ya era Cliente</option>
+                            <option value="Descartado">Descartado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        obtenerUnidades();  // Cargar las unidades cuando la página se haya cargado
+    });
+
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+
+
+    function obtenerUnidades() {
+        fetch('/obtener_unidades_por_asesor')
+        .then(response => response.json())
+        .then(data => {
+            let tbody = document.querySelector("#tablaSeguimiento tbody");
+            tbody.innerHTML = "";  // Limpiar la tabla
+            
+            if (data.unidades.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='3'>No hay unidades asignadas.</td></tr>";
+            } else {
+                data.unidades.forEach(unidad => {
+                    let row = `<tr id="unidad-${unidad.id}">
+                        <td>${unidad.Nombre_de_la_Unidad_Economica}</td>
+                        <td>${unidad.estado}</td>
+                        <td><button class="btn btn-info" onclick="abrirModal(${unidad.id})">Editar</button></td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            }
+        })
+        .catch(error => console.error("Error al obtener unidades:", error));
+    }
+
+    function abrirModal(unidadId) {
+        // Buscar la unidad por ID
+        const unidad = document.querySelector(`#unidad-${unidadId}`);
+
+        // Rellenar el modal con la información de la unidad
+        document.getElementById("estadoSelect").value = unidad.querySelector("td:nth-child(2)").textContent;
+
+        const form = document.getElementById("formStatusUpdate");
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            actualizarEstado(unidadId);
+        };
+
+        // Mostrar el modal
+        new bootstrap.Modal(document.getElementById('modalStatus')).show();
+    }
+
+    function actualizarEstado(unidadId) {
+        const nuevoEstado = document.getElementById("estadoSelect").value;
+
+        // Realizar la solicitud POST para actualizar el estado de la unidad económica
+        fetch('/actualizar_estado_unidad/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                id: unidadId,
+                nuevo_estado: nuevoEstado
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar el estado en la tabla
+                const unidad = document.querySelector(`#unidad-${unidadId}`);
+                unidad.querySelector("td:nth-child(2)").textContent = nuevoEstado;
+
+                // Cerrar el modal
+                const myModal = new bootstrap.Modal(document.getElementById('modalStatus'));
+                myModal.hide();
+            } else {
+                alert('Error al actualizar el estado');
+            }
+        })
+        .catch(error => console.error("Error al actualizar el estado:", error));
+    }
+</script>
+
+{% endblock %}
