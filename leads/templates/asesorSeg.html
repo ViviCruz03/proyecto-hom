@@ -10,6 +10,12 @@
                 <tr>
                     <th>Nombre de la unidad económica</th>
                     <th>Estado</th>
+                    <th>Municipio</th>
+                    <th>Localidad</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Fecha de actualización</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -39,6 +45,10 @@
                             <option value="Descartado">Descartado</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="fechaCambio" class="form-label">Fecha del cambio</label>
+                        <input type="date" id="fechaCambio" class="form-control">
+                    </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
@@ -52,20 +62,34 @@
     });
 
     function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
-    }
-    return cookieValue;
+        return cookieValue;
     }
 
+    function obtenerColorEstado(estado) {
+        switch (estado) {
+            case "Prospecto":
+                return "#f7dc6f";
+            case "Cliente Nuevo":
+                return "#2ecc71";
+            case "Ya era Cliente":
+                return "#ebf5fb";
+            case "Descartado":
+                return "#909497";
+            default:
+                return "white";  
+        }
+    }
 
     function obtenerUnidades() {
         fetch('/obtener_unidades_por_asesor')
@@ -78,12 +102,23 @@
                 tbody.innerHTML = "<tr><td colspan='3'>No hay unidades asignadas.</td></tr>";
             } else {
                 data.unidades.forEach(unidad => {
-                    let row = `<tr id="unidad-${unidad.id}">
+                    let row = document.createElement('tr');
+                    row.id = `unidad-${unidad.id}`;
+                    row.style.backgroundColor = obtenerColorEstado(unidad.estado);
+
+                    row.innerHTML = `
                         <td>${unidad.Nombre_de_la_Unidad_Economica}</td>
+                        <td>${unidad.Entidad_federetiva}</td>
+                        <td>${unidad.Municipio}</td>
+                        <td>${unidad.Localidad}</td>
+                        <td>${unidad.Latitud}</td>
+                        <td>${unidad.Longitud}</td>
+                        <td>${unidad.FechaEdicion}</td>
                         <td>${unidad.estado}</td>
-                        <td><button class="btn btn-info" onclick="abrirModal(${unidad.id})">Editar</button></td>
-                    </tr>`;
-                    tbody.innerHTML += row;
+                        <td><button class="btn btn-light" onclick="abrirModal(${unidad.id})">Editar</button></td>
+                    `;
+
+                    tbody.appendChild(row);
                 });
             }
         })
@@ -91,11 +126,13 @@
     }
 
     function abrirModal(unidadId) {
-        // Buscar la unidad por ID
         const unidad = document.querySelector(`#unidad-${unidadId}`);
+        const estado = unidad.querySelector("td:nth-child(2)").textContent;
+        document.getElementById("estadoSelect").value = estado || "Prospecto";
 
-        // Rellenar el modal con la información de la unidad
-        document.getElementById("estadoSelect").value = unidad.querySelector("td:nth-child(2)").textContent;
+        // Establecer la fecha actual por defecto
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById("fechaCambio").value = hoy;
 
         const form = document.getElementById("formStatusUpdate");
         form.onsubmit = function(e) {
@@ -103,14 +140,18 @@
             actualizarEstado(unidadId);
         };
 
-        // Mostrar el modal
         new bootstrap.Modal(document.getElementById('modalStatus')).show();
     }
 
     function actualizarEstado(unidadId) {
         const nuevoEstado = document.getElementById("estadoSelect").value;
+        const fechaCambio = document.getElementById("fechaCambio").value; // Obtener la fecha seleccionada
 
-        // Realizar la solicitud POST para actualizar el estado de la unidad económica
+        if (!fechaCambio) {
+            alert("Por favor, selecciona una fecha.");
+            return;
+        }
+
         fetch('/actualizar_estado_unidad/', {
             method: 'POST',
             headers: {
@@ -119,18 +160,21 @@
             },
             body: JSON.stringify({
                 id: unidadId,
-                nuevo_estado: nuevoEstado
+                nuevo_estado: nuevoEstado,
+                fecha_cambio: fechaCambio  // Enviar la fecha al backend
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Actualizar el estado en la tabla
                 const unidad = document.querySelector(`#unidad-${unidadId}`);
-                unidad.querySelector("td:nth-child(2)").textContent = nuevoEstado;
+                unidad.querySelector("td:nth-child(8)").textContent = nuevoEstado;
+                unidad.style.backgroundColor = obtenerColorEstado(nuevoEstado); // Actualizar color
 
-                // Cerrar el modal
-                const myModal = new bootstrap.Modal(document.getElementById('modalStatus'));
+                // Eliminar la fila después de actualizar
+                unidad.remove(); // Esto elimina la fila de la tabla
+
+                const myModal = bootstrap.Modal.getInstance(document.getElementById('modalStatus'));
                 myModal.hide();
             } else {
                 alert('Error al actualizar el estado');

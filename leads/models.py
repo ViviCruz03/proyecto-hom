@@ -95,6 +95,7 @@ class Asesor(models.Model):
 #Table Unidades Economicas
 class UniEconomicas(models.Model):
     ESTADO_CHOICES = [
+        ('En atención', 'En atención'),
         ('Prospecto', 'Prospecto'),
         ('Cliente Nuevo', 'Cliente Nuevo'),
         ('Ya era Cliente', 'Ya era Cliente'),
@@ -122,7 +123,7 @@ class UniEconomicas(models.Model):
     Longitud=models.CharField(max_length=200, verbose_name="Longitud", null=True)
     Fecha_de_incorporacion_al_denue=models.CharField(max_length=20, verbose_name="Fecha de incorporación al denue", null=True)
     asesor = models.ForeignKey(Asesor, on_delete=models.CASCADE, verbose_name="Asesor", null=True, blank=True, related_name="unidades")
-    estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='Prospecto')
+    estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='En atención')
     FechaEdicion = models.DateField(null=True, blank=True)
 
 

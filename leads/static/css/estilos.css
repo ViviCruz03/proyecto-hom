@@ -181,3 +181,28 @@ td {
 .modal-dialog {
     margin-top: 100px;  /* Ajusta esto según sea necesario */
 }
+
+/* Estilos para los colores según el estado */
+.estado-prospecto {
+    background-color: yellow;
+}
+
+.estado-cliente-nuevo {
+    background-color: green;
+    color: white;
+}
+
+.estado-en-atencion {
+    background-color: red;
+    color: white;
+}
+
+.estado-ya-cliente {
+    background-color: blue;
+    color: white;
+}
+
+.estado-descartado {
+    background-color: gray;
+    color: white;
+}

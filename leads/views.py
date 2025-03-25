@@ -277,6 +277,7 @@ def obtener_unidades_por_asesor(request):
             'Localidad', 
             'Latitud', 
             'Longitud',
+            'FechaEdicion',
             'estado'
         )
 
@@ -285,26 +286,24 @@ def obtener_unidades_por_asesor(request):
     except Asesor.DoesNotExist:
         return JsonResponse({'error': 'Asesor no encontrado'}, status=404)
     
+@csrf_exempt
 def actualizar_estado_unidad(request):
     if request.method == "POST":
         try:
-            # Obtener los datos del POST
             data = json.loads(request.body)
-            unidad_id = data.get('id')
-            nuevo_estado = data.get('nuevo_estado')
+            unidad_id = data.get("id")
+            nuevo_estado = data.get("nuevo_estado")
+            fecha_cambio = data.get("fecha_cambio")
 
-            # Buscar la unidad económica
             unidad = UniEconomicas.objects.get(id=unidad_id)
-
-            # Actualizar el estado
             unidad.estado = nuevo_estado
+            unidad.FechaEdicion = fecha_cambio  # Asegúrate de tener este campo en el modelo
             unidad.save()
 
-            return JsonResponse({'success': True, 'message': 'Estado actualizado con éxito'})
-
+            return JsonResponse({"success": True})
         except UniEconomicas.DoesNotExist:
-            return JsonResponse({'error': 'Unidad económica no encontrada'}, status=404)
+            return JsonResponse({"success": False, "error": "Unidad no encontrada"}, status=404)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+    return JsonResponse({"success": False}, status=400)
