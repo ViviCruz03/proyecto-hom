@@ -54,7 +54,7 @@
                     <th>C.P</th>
                     <th>Latitud</th>
                     <th>Longitud</th>
-                    <th>Fecha de registro</th>
+                    <th>Fecha de registro <input type="text" id="fechaFiltro" placeholder="Filtrar por año" style="width: 100px;"/></th>  <!-- Filtro en la celda de "Fecha de Registro" -->
                 </tr>
             </thead>
             <tbody id="tablaResultados">
@@ -69,31 +69,30 @@
         <button class="btn btn-warning" id="btnCancelar">LIMPIAR</button><br>
         <button class="btn btn-success" id="btnSiguiente">SIGUIENTE</button>
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Aviso</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="modalMessage">
-            <!-- Aquí se insertará el mensaje dinámicamente -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Aviso</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalMessage">
+                        <!-- Aquí se insertará el mensaje dinámicamente -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 </div>
 
-
 <script>
-    //Cargar las condiones
+    //Cargar las condiciones
     document.addEventListener("DOMContentLoaded", function () {
         fetch('/obtener-condiciones/')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 let condicionSelect = document.getElementById("condicion");
 
                 condicionSelect.innerHTML = '<option value="">Seleccione una opción</option>';
@@ -110,7 +109,6 @@
         fetch('/obtener-filtros/')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 let estadoSelect = document.getElementById("estados");
                 data.estados.forEach(estado => {
                     let option = new Option(estado, estado);
@@ -149,7 +147,56 @@
         });
     });
 
-    //
+    // Función para mostrar los resultados en una tabla
+    function mostrarResultados(resultados) {
+        let tabla = document.getElementById("tablaResultados");
+        tabla.innerHTML = ""; // Limpiar resultados anteriores
+
+        if (resultados.length === 0) {
+            tabla.innerHTML = "<tr><td colspan='10'>No se encontraron resultados</td></tr>";
+            return;
+        }
+
+        resultados.forEach(item => {
+            let fecha = new Date(item.Fecha_de_incorporacion_al_denue); // O la propiedad que contiene la fecha
+            let anioRegistro = fecha.getFullYear(); // Extraer el año
+
+            let fila = `<tr>
+                <td><input type="checkbox" class="seleccionarUnidad" value="${item.Status}"></td>
+                <td>${item.Nombre_de_la_Unidad_Economica}</td>
+                <td>${item.Nombre_de_clase_de_la_actividad}</td>
+                <td>${item.Descripcion_estrato_personal_ocupado}</td>
+                <td>${item.Nombre_de_la_vialidad}</td>
+                <td>${item.Numero_exterior_o_kilometro}</td>
+                <td>${item.Letra_exterior || 'No disponible'}</td>
+                <td>${item.Codigo_postal || 'No disponible'}</td>
+                <td>${item.Latitud}</td>
+                <td>${item.Longitud}</td>
+                <td>${anioRegistro}</td> <!-- Mostrar solo el año -->
+            </tr>`;
+            tabla.innerHTML += fila;
+        });
+    }
+
+    // Filtro por año dentro de la celda "Fecha de Registro"
+    document.getElementById("fechaFiltro").addEventListener("input", function () {
+        let anioFiltro = this.value;
+        let filas = document.querySelectorAll("#tablaResultados tr");
+
+        filas.forEach(fila => {
+            let celdaFecha = fila.cells[10]; // La celda de "Fecha de Registro"
+            if (celdaFecha) {
+                let anioRegistro = celdaFecha.textContent; // Año de la fecha de registro
+                if (anioFiltro && anioRegistro !== anioFiltro) {
+                    fila.style.display = "none";  // Ocultar fila si el año no coincide
+                } else {
+                    fila.style.display = "";  // Mostrar fila si el año coincide
+                }
+            }
+        });
+    });
+
+    // Consulta de los datos con los filtros
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("btnConsultar").addEventListener("click", function () {
             // Obtener los valores seleccionados
@@ -165,43 +212,14 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Resultados:", data.resultados);
                     mostrarResultados(data.resultados);
                 })
                 .catch(error => console.error("Error en la consulta:", error));
         });
     });
 
-    // Función para mostrar los resultados en una tabla
-    function mostrarResultados(resultados) {
-    let tabla = document.getElementById("tablaResultados");
-    tabla.innerHTML = ""; // Limpiar resultados anteriores
-
-    if (resultados.length === 0) {
-        tabla.innerHTML = "<tr><td colspan='10'>No se encontraron resultados</td></tr>";
-        return;
-    }
-
-    resultados.forEach(item => {
-        let fila = `<tr>
-            <td><input type="checkbox" class="seleccionarUnidad" value="${item.Status}"></td>
-            <td>${item.Nombre_de_la_Unidad_Economica}</td>
-            <td>${item.Nombre_de_clase_de_la_actividad}</td>
-            <td>${item.Descripcion_estrato_personal_ocupado}</td>
-            <td>${item.Nombre_de_la_vialidad}</td>
-            <td>${item.Numero_exterior_o_kilometro}</td>
-            <td>${item.Letra_exterior || 'No disponible'}</td>
-            <td>${item.Codigo_postal || 'No disponible'}</td>
-            <td>${item.Latitud}</td>
-            <td>${item.Longitud}</td>
-            <td>${item.Fecha_de_incorporacion_al_denue || 'No disponible'}</td>
-        </tr>`;
-        tabla.innerHTML += fila;
-    });
-    }
-
-    // Redireccionar al boton  siguiente
-    document.getElementById("btnSiguiente").addEventListener("click", function() {
+   // Redireccionar al boton  siguiente
+   document.getElementById("btnSiguiente").addEventListener("click", function() {
     let seleccionados = [];
     let condicion= document.getElementById("condicion").value;
     let estado = document.getElementById("estados").value;
@@ -273,6 +291,4 @@
 });
 
 </script>
-
-
 {% endblock %}
