@@ -44,6 +44,7 @@
         <table class="table table-bordered" id="resultadosTable">
             <thead class="table-primary">
                 <tr class="align-bottom">
+                    <th><input type="checkbox" id="selectAll" /></th> <!-- Checkbox global -->
                     <th>Status</th>
                     <th>Nombre de la Unidad</th>
                     <th>Clase de actividad</th>
@@ -177,6 +178,23 @@
             tabla.innerHTML += fila;
         });
     }
+    // Seleccionar/deseleccionar todos los checkboxes
+    document.getElementById("selectAll").addEventListener("change", function () {
+        let checkboxes = document.querySelectorAll(".seleccionarUnidad");
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // También, si un checkbox de fila es desmarcado, el "select all" se desmarcará
+    document.querySelectorAll(".seleccionarUnidad").forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            let selectAll = document.getElementById("selectAll");
+            let checkboxes = document.querySelectorAll(".seleccionarUnidad");
+            selectAll.checked = [...checkboxes].every(checkbox => checkbox.checked); // Si todos los checkboxes están seleccionados, marca "select all"
+            selectAll.indeterminate = [...checkboxes].some(checkbox => checkbox.checked) && !selectAll.checked; // Si hay algunos seleccionados pero no todos, pon el estado "indeterminado"
+        });
+    });
 
     // Filtro por año dentro de la celda "Fecha de Registro"
     document.getElementById("fechaFiltro").addEventListener("input", function () {
@@ -224,7 +242,7 @@
     let condicion= document.getElementById("condicion").value;
     let estado = document.getElementById("estados").value;
     let municipio=document.getElementById("municipio").value;
-    let localidad = document.getElementById("localidad").value;
+    // let localidad = document.getElementById("localidad").value;
     let modalMessage = document.getElementById("modalMessage");
     let modal = new bootstrap.Modal(document.getElementById("staticBackdrop")); // Obtener instancia del modal
 
