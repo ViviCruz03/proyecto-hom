@@ -28,12 +28,12 @@
                 <option value="">Seleccionar municipio...</option>
             </select>
         </div>
-        <div class="col-md-4">
+        <!-- <div class="col-md-4">
             <label for="distr"><b>Localidad:</b></label>
             <select id="localidad" class="form-select" aria-label="Default select example">
                 <option value="">Seleccionar localidad...</option>
             </select>
-        </div>
+        </div> -->
         <div class="mt-4 d-flex justify-content-end">
             <br>
             <button id="btnConsultar" class="btn btn-primary">BUSCAR</button>
@@ -54,7 +54,7 @@
                     <th>C.P</th>
                     <th>Latitud</th>
                     <th>Longitud</th>
-                    <th>Fecha de registro <input type="text" id="fechaFiltro" placeholder="Filtrar por año" style="width: 100px;"/></th>  <!-- Filtro en la celda de "Fecha de Registro" -->
+                    <th>Fecha de registro <input type="text" class="form-control" id="fechaFiltro" placeholder="Filtrar por año" style="width: 100px;"/></th>  <!-- Filtro en la celda de "Fecha de Registro" -->
                 </tr>
             </thead>
             <tbody id="tablaResultados">
@@ -132,19 +132,19 @@
         });
 
     // Cargar localidades cuando se selecciona un municipio
-    document.getElementById("municipio").addEventListener("change", function () {
-            let municipio = this.value;
-            fetch(`/obtener-localidades/?municipio=${municipio}`)
-                .then(response => response.json())
-                .then(data => {
-                    let localidadSelect = document.getElementById("localidad");
-                    localidadSelect.innerHTML = '<option value="">Seleccionar localidad...</option>';
-                    data.localidades.forEach(localidad => {
-                        let option = new Option(localidad, localidad);
-                        localidadSelect.add(option);
-                    });
-                });
-        });
+    // document.getElementById("municipio").addEventListener("change", function () {
+    //         let municipio = this.value;
+    //         fetch(`/obtener-localidades/?municipio=${municipio}`)
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 let localidadSelect = document.getElementById("localidad");
+    //                 localidadSelect.innerHTML = '<option value="">Seleccionar localidad...</option>';
+    //                 data.localidades.forEach(localidad => {
+    //                     let option = new Option(localidad, localidad);
+    //                     localidadSelect.add(option);
+    //                 });
+    //             });
+    //     });
     });
 
     // Función para mostrar los resultados en una tabla
@@ -203,10 +203,10 @@
             let condicion = document.getElementById("condicion").value;
             let estado = document.getElementById("estados").value;
             let municipio = document.getElementById("municipio").value;
-            let localidad = document.getElementById("localidad").value;
+            // let localidad = document.getElementById("localidad").value;
 
             // Construir la URL con parámetros
-            let url = `/consultar-datos/?condicion=${encodeURIComponent(condicion)}&estado=${encodeURIComponent(estado)}&municipio=${encodeURIComponent(municipio)}&localidad=${encodeURIComponent(localidad)}`;
+            let url = `/consultar-datos/?condicion=${encodeURIComponent(condicion)}&estado=${encodeURIComponent(estado)}&municipio=${encodeURIComponent(municipio)}`;
 
             // Hacer la petición AJAX
             fetch(url)
@@ -258,7 +258,7 @@
     localStorage.setItem("condicion", condicion);
     localStorage.setItem("estado", estado);
     localStorage.setItem("municipio", municipio);
-    localStorage.setItem("localidad",localidad);
+    // localStorage.setItem("localidad",localidad);
 
     // Redireccionar a la siguiente página
     window.location.href = "/consulta2/";

@@ -143,7 +143,7 @@ def consultar_datos(request):
     condicion = request.GET.get('condicion', '').strip()
     estado = request.GET.get('estado', '').strip()
     municipio = request.GET.get('municipio', '').strip()
-    localidad = request.GET.get('localidad', '').strip()
+    # localidad = request.GET.get('localidad', '').strip()
 
     # Construcción dinámica del filtro
     filtros = {}
@@ -153,8 +153,7 @@ def consultar_datos(request):
         filtros['Entidad_federetiva__icontains'] = estado
     if municipio:
         filtros['Municipio__icontains'] = municipio
-    if localidad:
-        filtros['Localidad__icontains'] = localidad
+    
 
     # Realizar la consulta con los filtros aplicados
     resultados = UniEconomicas.objects.filter(**filtros).values(
