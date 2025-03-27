@@ -11,7 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 import json
 
-
 #----- GENERAL-----
 #Pantalla de home
 def home(request):
@@ -194,6 +193,7 @@ def obtener_unidades_por_asesorSu(request):
             'Localidad',
             'Latitud',
             'Longitud',
+            'FechaEdicion',
             'estado'
         )
         return JsonResponse({'unidades': list(unidades)})
@@ -202,13 +202,23 @@ def obtener_unidades_por_asesorSu(request):
         return JsonResponse({'error': 'Asesor no encontrado'}, status=404)
 
 #Obtener los asesores
+@login_required
 def obtener_asesores(request):
-    # Obtener todos los asesores
     if request.method == 'GET':
-        asesores = Asesor.objects.all()
-        asesor_data = [{'id': asesor.id, 'nombre': asesor.nomAses} for asesor in asesores]
+        try:
+            # Obtener el usuario logueado
+            usuario = request.user
+            # Verificar si el usuario es un supervisor
+            supervisor = Supervisor.objects.get(user=usuario)
+            # Filtrar los asesores que están bajo la supervisión de este usuario
+            asesores = Asesor.objects.filter(supervisor=supervisor)
+            # Convertir los asesores en un formato JSON
+            asesor_data = [{'id': asesor.id, 'nombre': asesor.nomAses} for asesor in asesores]
 
-    return JsonResponse({'asesores': asesor_data})
+            return JsonResponse({'asesores': asesor_data})
+
+        except Supervisor.DoesNotExist:
+            return JsonResponse({'error': 'El usuario no es un supervisor'}, status=403)
 
 #Asignar unidades a asesor
 def asignar_asesor(request):
@@ -285,6 +295,7 @@ def segConsulta(request):
     return render(request, 'seguimiento1.html')
 
 
+
 #Dashboard del supervisor
 @login_required
 def dash(request):
@@ -298,6 +309,7 @@ def accionAses(request):
     return render(request, 'accionAses.html')
 
 #Vista a seguimiento del asesor
+@login_required
 def asesorSeg(request):
     return render(request, 'asesorSeg.html')
 

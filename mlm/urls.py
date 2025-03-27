@@ -49,7 +49,6 @@ urlpatterns = [
     # en edición
     path('guardar_consulta/', views.guardar_consulta, name='guardar_consulta'),
 
-    
 
     #ASESORES -------------
     path('accionAses/',views.accionAses, name='accionAses'),
