@@ -45,7 +45,6 @@
             <thead class="table-primary">
                 <tr class="align-bottom">
                     <th><input type="checkbox" id="selectAll" /></th> <!-- Checkbox global -->
-                    <th>Status</th>
                     <th>Nombre de la Unidad</th>
                     <th>Clase de actividad</th>
                     <th>N° Personal</th>
@@ -68,7 +67,11 @@
     <div class="d-flex justify-content-end gap-3">
         <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'">ATRAS</button>
         <button class="btn btn-warning" id="btnCancelar">LIMPIAR</button><br>
+        <!-- En edición -->
+        <button class="btn btn-primary" id="btnPosponer">POSPONER CONSULTA</button>
+        <!-- En edición --> 
         <button class="btn btn-success" id="btnSiguiente">SIGUIENTE</button>
+        
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -85,6 +88,48 @@
                 </div>
             </div>
         </div>
+        <!-- En edición -->
+        <div class="modal fade" id="modalContinuar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalContinuarLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modalContinuarLabel">Guardar Consulta</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Formulario dentro del modal -->
+                        {% csrf_token %}
+                        <form id="formGuardarConsulta">
+                            <div class="mb-3">
+                                <label for="nombreConsulta" class="form-label">Nombre de la Consulta</label>
+                                <input type="text" class="form-control" id="nombreConsulta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaConsulta" class="form-label">Fecha</label>
+                                <input type="date" class="form-control" id="fechaConsulta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="asesor" class="form-label">Asesor</label>
+                                <input type="text" class="form-control" id="asesor" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="supervisor" class="form-label">Supervisor</label>
+                                <input type="text" class="form-control" id="supervisor" value="{{ supervisor_name }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="unidadesSeleccionadas" class="form-label">Unidades Seleccionadas</label>
+                                <textarea class="form-control" id="unidadesSeleccionadas" rows="3" readonly></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary" id="guardarConsulta">Guardar Consulta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- En edición -->
     </div>
 </div>
 
@@ -306,7 +351,100 @@
         resultadosTable.innerHTML = "";  // Borra el contenido de la tabla
         }
     });
-});
+    });
+    //en edición
+    // Incluir el CSRF token en los headers de la solicitud
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const consultaData = {
+    condicion: document.getElementById("condicion").value,
+    estado: document.getElementById("estados").value,
+    municipio: document.getElementById("municipio").value,
+    // localidad: document.getElementById("localidad").value, // Si decides incluirla
+    };
+
+    // Mostrar el modal al hacer clic en "Continuar después"
+    document.getElementById("btnPosponer").addEventListener("click", function() {
+    let seleccionados = [];
+
+    // Obtener las unidades seleccionadas
+    document.querySelectorAll(".seleccionarUnidad:checked").forEach(checkbox => {
+        let fila = checkbox.closest("tr");
+        let unidad = {
+            Nombre: fila.cells[1].textContent,
+            Actividad: fila.cells[2].textContent,
+            Estrato: fila.cells[3].textContent,
+            Vialidad: fila.cells[4].textContent,
+            Numero: fila.cells[5].textContent,
+            Letra: fila.cells[6].textContent,
+            CP: fila.cells[7].textContent,
+            Latitud: fila.cells[8].textContent,
+            Longitud: fila.cells[9].textContent,
+            Fecha: fila.cells[10].textContent
+        };
+        seleccionados.push(unidad);
+    });
+
+    // Si no se seleccionaron unidades, mostrar un mensaje de error
+    if (seleccionados.length === 0) {
+        alert("Por favor, selecciona al menos una unidad.");
+        return;
+    }
+
+    // Mostrar el modal y rellenar los campos con la información de la consulta
+    let modal = new bootstrap.Modal(document.getElementById("modalContinuar"));
+    document.getElementById("unidadesSeleccionadas").value = JSON.stringify(seleccionados, null, 2);  // Guardar las unidades seleccionadas en formato JSON
+
+    modal.show();
+    });
+    document.getElementById("guardarConsulta").addEventListener("click", function() {
+    let nombreConsulta = document.getElementById("nombreConsulta").value;
+    let fechaConsulta = document.getElementById("fechaConsulta").value;
+    let asesor = document.getElementById("asesor").value;
+    let supervisor = document.getElementById("supervisor").value;
+    let unidadesSeleccionadas = document.getElementById("unidadesSeleccionadas").value;
+
+    // Validar que los campos no estén vacíos
+    if (!nombreConsulta || !fechaConsulta || !asesor || !unidadesSeleccionadas) {
+        alert("Por favor, complete todos los campos.");
+        return;
+    }
+
+    // Crear un objeto con los datos a enviar
+    let consultaData = {
+        nombreConsulta: nombreConsulta,
+        fechaConsulta: fechaConsulta,
+        asesor: asesor,
+        supervisor: supervisor,
+        unidades: unidadesSeleccionadas  // Las unidades ya están en formato JSON
+    };
+
+    // Hacer la solicitud POST para guardar la consulta
+    fetch('/guardar_consulta/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(consultaData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("Consulta guardada con éxito.");
+        } else {
+            alert("Error al guardar la consulta: " + data.message);
+        }
+    })
+    .catch(error => {
+        alert("Hubo un error: " + error);
+    });
+
+    // Cerrar el modal después de guardar
+    let modal = bootstrap.Modal.getInstance(document.getElementById("modalContinuar"));
+    modal.hide();
+    });
+//fin de edición
+
 
 </script>
 {% endblock %}

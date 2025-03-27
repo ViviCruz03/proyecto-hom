@@ -125,13 +125,18 @@ class UniEconomicas(models.Model):
     asesor = models.ForeignKey(Asesor, on_delete=models.CASCADE, verbose_name="Asesor", null=True, blank=True, related_name="unidades")
     estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='En atención')
     FechaEdicion = models.DateField(null=True, blank=True)
-
-
+    # en edición
+    def __str__(self):
+            return self.Nombre_de_la_Unidad_Economica
+    #
 
     
-#Tabla Consultas
+#Tabla Consultas en edición
 class Consulta(models.Model):
     nom_Cons=models.CharField(max_length=200, verbose_name='Consulta')
     fecha_Cons= models.DateField(verbose_name='Fecha', null= False)
     asesor=models.ForeignKey('Asesor', on_delete=models.CASCADE, verbose_name='Asesor')
-    uniEc=models.ForeignKey('UniEconomicas', on_delete=models.CASCADE, verbose_name='Unidades Economicas')
+    supervisor = models.ForeignKey('Supervisor', on_delete=models.CASCADE, verbose_name='Supervisor', null=True)
+    uniEc=models.ManyToManyField('UniEconomicas', verbose_name='Unidades Economicas')
+    def __str__(self):
+            return self.nom_Cons

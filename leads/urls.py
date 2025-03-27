@@ -18,7 +18,8 @@ urlpatterns = [
     path('obtener-asesores/', views.obtener_asesores, name='obtener_asesores'),
     path('asignar-asesor/', views.asignar_asesor, name='asignar_asesor'),
     path('obtener_unidades_por_asesorSu/',obtener_unidades_por_asesorSu, name='obtener_unidades_por_asesorSu'),
-    
+    # en edición
+    path('guardar_consulta/', views.guardar_consulta, name='guardar_consulta'),
 
     
 

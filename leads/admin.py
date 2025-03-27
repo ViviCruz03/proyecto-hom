@@ -48,12 +48,17 @@ class UniEconomicasAdmin(ImportExportMixin, admin.ModelAdmin):
                   ]
     search_fields=['nom_uniEc','clase_uniEc']
     list_per_page=10
+#en edición
+class ConsultaAdmin(admin.ModelAdmin):
+    list_display = ('nom_Cons', 'fecha_Cons', 'asesor', 'supervisor', 'mostrar_unidades_economicas')
 
-class ConsultaAdmin(ImportExportMixin, admin.ModelAdmin):
-    list_display=['nom_Cons','fecha_Cons','asesor','uniEc']
-    search_fields=['nomCons']
-    list_per_page=10
-
+    def mostrar_unidades_economicas(self, obj):
+        # Obtén las unidades económicas relacionadas
+        unidades = obj.uniEc.all()  # Many-to-many, obtener todas las relacionadas
+        # Devuelve los nombres de las unidades económicas, separados por coma
+        return ", ".join([unidad.Nombre_de_la_Unidad_Economica for unidad in unidades])
+    mostrar_unidades_economicas.short_description = 'Unidades Económicas'
+#fin de edición 
 
 admin.site.site_header = 'Administración MLM'
 admin.site.index_title = 'Panel de control de MLM'

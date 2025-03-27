@@ -8,6 +8,7 @@ from .models import *
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 import json
 
 
@@ -238,12 +239,50 @@ def asignar_asesor(request):
 def verAsesor(request):
     return render(request, 'verAsesor.html')
 
+#Guardar consulta en modal por editar
+@csrf_exempt
+def guardar_consulta(request):
+    if request.method == 'POST':
+        try:
+            # Obtener los datos del request
+            nom_Cons = request.POST.get('nombreConsulta')
+            fecha_Cons = request.POST.get('fechaConsulta')
+            asesor_nombre = request.POST.get('asesor')  # Nombre del asesor recibido
+            supervisor_nombre = request.POST.get('supervisor')  # Nombre del supervisor recibido
+            uniEc = request.POST.get('unidades')  # Esto será un JSON con las unidades seleccionadas
+
+            # Obtener la instancia del asesor desde la base de datos
+            asesor = get_object_or_404(Asesor, nombre=asesor_nombre)  # Busca el asesor por nombre
+
+            # Obtener la instancia del supervisor si es necesario
+            supervisor = get_object_or_404(Supervisor, nombre=supervisor_nombre)  # Busca el supervisor por nombre
+
+            # Si las unidades son un string JSON, conviértelo a un diccionario
+            if uniEc:
+                uniEc = json.loads(uniEc)  # Convierte el string JSON a un diccionario
+
+            # Guardar la consulta en la base de datos
+            consulta = Consulta(
+                nom_Cons=nom_Cons,
+                fecha_Cons=fecha_Cons,
+                asesor=asesor,
+                supervisor=supervisor,
+                uniEc=uniEc  # Si el campo uniEc necesita ser un JSON, ya lo has procesado
+            )
+            consulta.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Consulta guardada con éxito.'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+# fin de edicion 
 
 #Continuar el seguimiento de una consulta del supervisor
 @login_required
 def segConsulta(request):
     return render(request, 'seguimiento1.html')
-
 
 
 #Dashboard del supervisor
