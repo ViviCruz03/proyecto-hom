@@ -4,7 +4,7 @@
 {% block content %}
 <div class="accion_container1">
     <div class="d-flex justify-content-between align-items-center">
-        <h3>VER ASESORES</h3>
+        <h3>SEGUIMIENTO DE ASESORES</h3>
         <img src="{% static 'img/Logo-1.png' %}" alt="Mappit Logo" width="100">
     </div>
     <br>
@@ -15,14 +15,16 @@
                 <select id="asesor1Select" class="form-select">
                     <option selected value="">Seleccionar asesor...</option>
                 </select>
+                <br>
+                <div class="d-flex ">
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'">ATRAS</button>
+                </div>
             </div>
             <div>
                 <button id="btnBuscar" class="btn btn-primary">Ir</button>
             </div>
         </div>
-        <div class="d-flex justify-content-end gap-3">
-            <button class="btn btn-danger" onclick="window.location.href='{% url 'accion' %}'">ATRAS</button>
-        </div>
+        
     </div>
     <br><br>
     <div>
@@ -37,16 +39,17 @@
                         <th>Localidad</th>
                         <th>Latitud</th>
                         <th>Longitud</th>
+                        <th>Fecha en que se atendio</th>
                         <th>
                             <div class="d-flex justify-content-between">
                                 <!-- Filtro dentro de la columna -->
                                 <select id="filtroEstado" class="form-select" style="width: auto; display: inline-block;" disabled>
-                                    <option value="">Status</option>
+                                    <option value="">Todos</option>
                                     <option value="Prospecto">Prospecto</option>
                                     <option value="Cliente Nuevo">Cliente Nuevo</option>
                                     <option value="Ya era Cliente">Ya era Cliente</option>
                                     <option value="Descartado">Descartado</option>
-                                    <option value="En Atención">En Atención</option> <!-- Agregado "En atención" -->
+                                    <option value="En Atención">En Atención</option> 
                                 </select>
                             </div>
                         </th>
@@ -109,7 +112,8 @@
                     <td>${unidad.Localidad}</td>
                     <td>${unidad.Latitud}</td>
                     <td>${unidad.Longitud}</td>
-                    <td class="estado">${unidad.estado}</td> <!-- Columna de estado -->
+                    <td>${unidad.FechaEdicion}</td>
+                    <td class="estado">${unidad.estado}</td>
                 </tr>`;
                 tbody.innerHTML += row;
             });
