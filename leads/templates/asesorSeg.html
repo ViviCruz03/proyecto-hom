@@ -4,7 +4,7 @@
 {% block content %}
 <div class="gral-container">
     <h3>UNIDADES ECONÓMICAS ASIGNADAS</h3>
-    <div class="table-responsive">
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
         <table class="table table-bordered" id="tablaSeguimiento">
             <thead class="table-primary">
                 <tr>
@@ -12,10 +12,22 @@
                     <th>Estado</th>
                     <th>Municipio</th>
                     <th>Localidad</th>
-                    <th>Latitud</th>
+                    <th>Latitud</th>    
                     <th>Longitud</th>
                     <th>Fecha de actualización</th>
-                    <th>Estado</th>
+                    <th>
+                        <div class="d-flex justify-content-between">
+                            <!-- Filtro dentro de la columna -->
+                            <select id="filtroEstado" class="form-select" >
+                                <option value="">Todos</option>
+                                <option value="Prospecto">Prospecto</option>
+                                <option value="Cliente Nuevo">Cliente Nuevo</option>
+                                <option value="Ya era Cliente">Ya era Cliente</option>
+                                <option value="Descartado">Descartado</option>
+                                <option value="En Atención">Nuevos Asignados</option> 
+                            </select>
+                        </div>
+                    </th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -59,6 +71,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         obtenerUnidades();  // Cargar las unidades cuando la página se haya cargado
+        document.getElementById("filtroEstado").addEventListener("change", filtrarPorEstado);
     });
 
     function getCookie(name) {
@@ -83,12 +96,27 @@
             case "Cliente Nuevo":
                 return "#2ecc71";
             case "Ya era Cliente":
-                return "#ebf5fb";
+                return "#6bbbfa";
             case "Descartado":
                 return "#909497";
             default:
                 return "white";  
         }
+    }
+    function filtrarPorEstado() {
+        const estadoSeleccionado = document.getElementById("filtroEstado").value.toLowerCase(); // Convertir a minúsculas para evitar problemas de mayúsculas
+        const filas = document.querySelectorAll("#tablaSeguimiento tbody tr");
+
+        filas.forEach(fila => {
+            const estadoUnidad = fila.querySelector(".estado").textContent.toLowerCase(); // Filtrar por el texto de la columna
+
+            // Verificar si el estado seleccionado es vacío o si el estado de la unidad coincide
+            if (estadoSeleccionado === "" || estadoUnidad.includes(estadoSeleccionado)) {
+                fila.style.display = "";  // Mostrar fila
+            } else {
+                fila.style.display = "none";  // Ocultar fila
+            }
+        });
     }
 
     function obtenerUnidades() {
@@ -114,7 +142,7 @@
                         <td>${unidad.Latitud}</td>
                         <td>${unidad.Longitud}</td>
                         <td>${unidad.FechaEdicion}</td>
-                        <td>${unidad.estado}</td>
+                        <td class="estado">${unidad.estado}</td>
                         <td><button class="btn btn-light" onclick="abrirModal(${unidad.id})">Editar</button></td>
                     `;
 
