@@ -62,6 +62,9 @@
             </tbody>
         </table>
     </div>
+    <div id="loading" style="display: none; text-align: center;">
+        <img src="{% static 'img/carga.gif' %}" alt="Cargando..." width="500">
+    </div>
     
     <br><br><br>
     <div class="d-flex justify-content-end gap-3">
@@ -262,22 +265,26 @@
     // Consulta de los datos con los filtros
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("btnConsultar").addEventListener("click", function () {
-            // Obtener los valores seleccionados
             let condicion = document.getElementById("condicion").value;
             let estado = document.getElementById("estados").value;
             let municipio = document.getElementById("municipio").value;
-            // let localidad = document.getElementById("localidad").value;
 
-            // Construir la URL con parámetros
             let url = `/consultar-datos/?condicion=${encodeURIComponent(condicion)}&estado=${encodeURIComponent(estado)}&municipio=${encodeURIComponent(municipio)}`;
 
-            // Hacer la petición AJAX
+            // Mostrar el GIF de carga y limpiar la tabla
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("tablaResultados").innerHTML = "";
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     mostrarResultados(data.resultados);
                 })
-                .catch(error => console.error("Error en la consulta:", error));
+                .catch(error => console.error("Error en la consulta:", error))
+                .finally(() => {
+                    // Ocultar el GIF de carga
+                    document.getElementById("loading").style.display = "none";
+                });
         });
     });
 
