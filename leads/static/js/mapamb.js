@@ -33,6 +33,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoidml2aXMyIiwiYSI6ImNtOHJ6bWgxaDEzbXgyam9tZjZ5e
                 .addTo(map);
             });
         }
+        
 
         // Llama a la función que obtenga y pase los datos a agregarPuntos
         // ejemplo: agregarPuntos(data);

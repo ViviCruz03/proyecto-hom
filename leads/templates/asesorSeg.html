@@ -105,7 +105,7 @@
         }
         return cookieValue;
     }
-    
+
     function filtrarPorEstado() {
         const estadoSeleccionado = document.getElementById("filtroEstado").value.toLowerCase(); // Convertir a minúsculas para evitar problemas de mayúsculas
         const filas = document.querySelectorAll("#tablaSeguimiento tbody tr");
@@ -121,6 +121,7 @@
             }
         });
     }
+    
 
     function obtenerUnidades() {
         fetch('/obtener_unidades_por_asesor')
@@ -151,6 +152,8 @@
 
                     tbody.appendChild(row);
                 });
+                // Agregar los puntos en el mapa con los colores correspondientes
+                agregarPuntos(data.unidades);
             }
         })
         .catch(error => console.error("Error al obtener unidades:", error));
