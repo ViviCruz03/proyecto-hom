@@ -11,6 +11,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 import json
 
+#----MAPAAA conversion de datos a json
+def obtener_unidades_json(request):
+    unidades = UniEconomicas.objects.values('Nombre_de_la_Unidad_Economica', 'Latitud', 'Longitud', 'estado')
+    return JsonResponse(list(unidades), safe=False)
+# ---- MAPA
+
+
 #----- GENERAL-----
 #Pantalla de home
 def home(request):

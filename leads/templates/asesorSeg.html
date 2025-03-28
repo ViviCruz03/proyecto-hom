@@ -4,6 +4,10 @@
 {% block content %}
 <div class="gral-container">
     <h3>UNIDADES ECONÓMICAS ASIGNADAS</h3>
+    <p>
+        Hola {{ user.get_username }}! <br>
+        Estas son tus unidades económicas asignadas:
+    </p>
     <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
         <table class="table table-bordered" id="tablaSeguimiento">
             <thead class="table-primary">
@@ -47,6 +51,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div>
+                    <!-- traer la info de las unidades economicas -->
+                </div>
                 <form id="formStatusUpdate">
                     <div class="mb-3">
                         <label for="estadoSelect" class="form-label">Estado de la unidad</label>
@@ -61,6 +68,16 @@
                         <label for="fechaCambio" class="form-label">Fecha del cambio</label>
                         <input type="date" id="fechaCambio" class="form-control">
                     </div>
+                    <!-- Contenedor para el mapa de Mapbox -->
+                    <div id="mapContainer" style="width: 100%; height: 500px;"></div>
+                    <br>
+                    <!-- Botón para abrir en Google Maps -->
+                    <div class="mb-3">
+                        <a id="verEnGoogleMapsBtn" href="#" target="_blank">
+                            <button type="button" class="btn btn-info">Ver en Google Maps</button>
+                        </a>
+                    </div>
+                    <br>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
@@ -88,21 +105,7 @@
         }
         return cookieValue;
     }
-
-    function obtenerColorEstado(estado) {
-        switch (estado) {
-            case "Prospecto":
-                return "#f7dc6f";
-            case "Cliente Nuevo":
-                return "#2ecc71";
-            case "Ya era Cliente":
-                return "#6bbbfa";
-            case "Descartado":
-                return "#909497";
-            default:
-                return "white";  
-        }
-    }
+    
     function filtrarPorEstado() {
         const estadoSeleccionado = document.getElementById("filtroEstado").value.toLowerCase(); // Convertir a minúsculas para evitar problemas de mayúsculas
         const filas = document.querySelectorAll("#tablaSeguimiento tbody tr");
@@ -155,12 +158,18 @@
 
     function abrirModal(unidadId) {
         const unidad = document.querySelector(`#unidad-${unidadId}`);
-        const estado = unidad.querySelector("td:nth-child(2)").textContent;
-        document.getElementById("estadoSelect").value = estado || "Prospecto";
+        const estado = unidad.querySelector("td:nth-child(8)").textContent;
+        const latitud = parseFloat(unidad.querySelector("td:nth-child(5)").textContent);
+        const longitud = parseFloat(unidad.querySelector("td:nth-child(6)").textContent);
 
-        // Establecer la fecha actual por defecto
+        //Establecer el valor dek estado y la fecha
+        document.getElementById("estadoSelect").value = estado || "En atención";
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById("fechaCambio").value = hoy;
+
+        // Establecer la URL de Google Maps en el botón
+        const googleMapsUrl = `https://www.google.com/maps?q=${latitud},${longitud}`;
+        document.getElementById("verEnGoogleMapsBtn").setAttribute("href", googleMapsUrl);
 
         const form = document.getElementById("formStatusUpdate");
         form.onsubmit = function(e) {
@@ -168,12 +177,15 @@
             actualizarEstado(unidadId);
         };
 
-        new bootstrap.Modal(document.getElementById('modalStatus')).show();
+        const myModal = new bootstrap.Modal(document.getElementById('modalStatus'));
+        myModal.show();
+
+        setTimeout(() => inicializarMapa(latitud, longitud), 500);  // Retraso para evitar errores de carga
     }
 
     function actualizarEstado(unidadId) {
         const nuevoEstado = document.getElementById("estadoSelect").value;
-        const fechaCambio = document.getElementById("fechaCambio").value; // Obtener la fecha seleccionada
+        const fechaCambio = document.getElementById("fechaCambio").value;
 
         if (!fechaCambio) {
             alert("Por favor, selecciona una fecha.");
@@ -189,7 +201,7 @@
             body: JSON.stringify({
                 id: unidadId,
                 nuevo_estado: nuevoEstado,
-                fecha_cambio: fechaCambio  // Enviar la fecha al backend
+                fecha_cambio: fechaCambio
             })
         })
         .then(response => response.json())
@@ -197,10 +209,8 @@
             if (data.success) {
                 const unidad = document.querySelector(`#unidad-${unidadId}`);
                 unidad.querySelector("td:nth-child(8)").textContent = nuevoEstado;
-                unidad.style.backgroundColor = obtenerColorEstado(nuevoEstado); // Actualizar color
-
-                // Eliminar la fila después de actualizar
-                unidad.remove(); // Esto elimina la fila de la tabla
+                unidad.style.backgroundColor = obtenerColorEstado(nuevoEstado);
+                unidad.remove();  // Eliminar la fila
 
                 const myModal = bootstrap.Modal.getInstance(document.getElementById('modalStatus'));
                 myModal.hide();
@@ -209,6 +219,21 @@
             }
         })
         .catch(error => console.error("Error al actualizar el estado:", error));
+    }
+    // Función para inicializar el mapa con Mapbox
+    function inicializarMapa(lat, lon) {
+        mapboxgl.accessToken = 'pk.eyJ1Ijoidml2aXMyIiwiYSI6ImNtOHJ6bWgxaDEzbXgyam9tZjZ5eDNjcDUifQ.ZSV7rDNcxZuEKXzWEFu7pQ'; // Coloca tu token aquí
+
+        const map = new mapboxgl.Map({
+            container: 'mapContainer', // ID del contenedor del mapa
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [lon, lat], // Coordenadas de latitud y longitud
+            zoom: 13
+        });
+
+        new mapboxgl.Marker()
+            .setLngLat([lon, lat])
+            .addTo(map);
     }
 </script>
 
