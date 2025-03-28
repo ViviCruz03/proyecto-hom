@@ -47,7 +47,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalStatusLabel">Actualizar estado de la unidad económica</h5>
+                <h5 class="modal-title" id="modalStatusLabel">ACTUALIZAR EL ESTADO DE LA UNIDAD ECONÓMICA</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex">
@@ -68,7 +68,9 @@
                     <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
                     <p><strong>Correo Electrónico:</strong> <span id="correo"></span></p>
                     <p><strong>Sitio Web:</strong> <span id="sitioWeb"></span></p>
-                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
                 </div>
                 
                 <form id="formStatusUpdate" class="w-50" style="max-height: 800px; overflow-y: auto;">
@@ -91,7 +93,7 @@
                     <!-- Botón para abrir en Google Maps -->
                     <div class="mb-3">
                         <a id="verEnGoogleMapsBtn" href="#" target="_blank">
-                            <div class="d-flex justify-content-end gap-3">
+                            <div class="d-flex justify-content-end ">
                                 <button type="button" class="btn btn-link">Ver en Google Maps</button>
                             </div>
                         </a>
@@ -198,15 +200,15 @@
             document.getElementById("claseActividad").textContent = data.Nombre_de_clase_de_la_actividad;
             document.getElementById("estratoPersonal").textContent = data.Descripcion_estrato_personal_ocupado;
             document.getElementById("vialidad").textContent = data.Nombre_de_la_vialidad;
-            document.getElementById("numeroExterior").textContent = data.Numero_exterior_o_kilometro;
-            document.getElementById("letraExterior").textContent = data.Letra_exterior;
+            document.getElementById("numeroExterior").textContent = data.Numero_exterior_o_kilometro|| "No disponible";
+            document.getElementById("letraExterior").textContent = data.Letra_exterior|| "No disponible";
             document.getElementById("asentamiento").textContent = data.Nombre_de_asentamiento_humano;
-            document.getElementById("codigoPostal").textContent = data.Codigo_postal;
+            document.getElementById("codigoPostal").textContent = data.Codigo_postal || "No disponible";
             document.getElementById("entidadFederativa").textContent = data.Entidad_federetiva;
             document.getElementById("municipio").textContent = data.Municipio;
             document.getElementById("localidad").textContent = data.Localidad;
-            document.getElementById("telefono").textContent = data.Numero_de_telefono;
-            document.getElementById("correo").textContent = data.Correo_electronico;
+            document.getElementById("telefono").textContent = data.Numero_de_telefono|| "No disponible";
+            document.getElementById("correo").textContent = data.Correo_electronico|| "No disponible";
             document.getElementById("sitioWeb").textContent = data.Sitio_en_Internet || "No disponible";
         });
 
