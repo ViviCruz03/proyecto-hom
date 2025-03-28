@@ -48,6 +48,9 @@ urlpatterns = [
     path('obtener_unidades_por_asesorSu/', views.obtener_unidades_por_asesorSu, name='obtener_unidades_por_asesorSu'),
     # en edición
     path('guardar_consulta/', views.guardar_consulta, name='guardar_consulta'),
+    
+    path('detalle_unidad/<int:unidad_id>/', views.detalle_unidad, name="detalle_unidad"),
+
 
 
     #ASESORES -------------

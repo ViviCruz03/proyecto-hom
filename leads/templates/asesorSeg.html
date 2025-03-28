@@ -44,17 +44,34 @@
 
 <!-- Modal para editar el estado -->
 <div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalStatusLabel">Actualizar estado de la unidad económica</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div>
-                    <!-- traer la info de las unidades economicas -->
+            <div class="modal-body d-flex">
+                <!-- Información de la Unidad Económica -->
+                <div id="infoUnidadEconomica" class="w-50" style="max-height: 800px; overflow-y: auto;">
+                    <p><strong>Nombre de la Unidad:</strong> <span id="nombreUnidad"></span></p>
+                    <p><strong>Razón Social:</strong> <span id="razonSocial"></span></p>
+                    <p><strong>Clase de Actividad:</strong> <span id="claseActividad"></span></p>
+                    <p><strong>Estrato Personal:</strong> <span id="estratoPersonal"></span></p>
+                    <p><strong>Vialidad:</strong> <span id="vialidad"></span></p>
+                    <p><strong>Número Exterior:</strong> <span id="numeroExterior"></span></p>
+                    <p><strong>Letra Exterior:</strong> <span id="letraExterior"></span></p>
+                    <p><strong>Asentamiento:</strong> <span id="asentamiento"></span></p>
+                    <p><strong>Código Postal:</strong> <span id="codigoPostal"></span></p>
+                    <p><strong>Entidad Federativa:</strong> <span id="entidadFederativa"></span></p>
+                    <p><strong>Municipio:</strong> <span id="municipio"></span></p>
+                    <p><strong>Localidad:</strong> <span id="localidad"></span></p>
+                    <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
+                    <p><strong>Correo Electrónico:</strong> <span id="correo"></span></p>
+                    <p><strong>Sitio Web:</strong> <span id="sitioWeb"></span></p>
+                    <button type="submit" class="btn btn-success">Guardar</button>
                 </div>
-                <form id="formStatusUpdate">
+                
+                <form id="formStatusUpdate" class="w-50" style="max-height: 800px; overflow-y: auto;">
                     <div class="mb-3">
                         <label for="estadoSelect" class="form-label">Estado de la unidad</label>
                         <select id="estadoSelect" class="form-select">
@@ -74,11 +91,12 @@
                     <!-- Botón para abrir en Google Maps -->
                     <div class="mb-3">
                         <a id="verEnGoogleMapsBtn" href="#" target="_blank">
-                            <button type="button" class="btn btn-info">Ver en Google Maps</button>
+                            <div class="d-flex justify-content-end gap-3">
+                                <button type="button" class="btn btn-link">Ver en Google Maps</button>
+                            </div>
                         </a>
                     </div>
                     <br>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
         </div>
@@ -160,10 +178,37 @@
     }
 
     function abrirModal(unidadId) {
+
+        // Obtener valores de la unidad
         const unidad = document.querySelector(`#unidad-${unidadId}`);
+        const nombreUnidad = unidad.querySelector("td:nth-child(1)").textContent;
+        const entidadFederativa = unidad.querySelector("td:nth-child(2)").textContent;
+        const municipio = unidad.querySelector("td:nth-child(3)").textContent;
+        const localidad = unidad.querySelector("td:nth-child(4)").textContent;
         const estado = unidad.querySelector("td:nth-child(8)").textContent;
         const latitud = parseFloat(unidad.querySelector("td:nth-child(5)").textContent);
         const longitud = parseFloat(unidad.querySelector("td:nth-child(6)").textContent);
+
+        // Obtener datos adicionales desde una fuente de datos
+        fetch(`/detalle_unidad/${unidadId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("nombreUnidad").textContent = data.Nombre_de_la_Unidad_Economica;
+            document.getElementById("razonSocial").textContent = data.Razon_social;
+            document.getElementById("claseActividad").textContent = data.Nombre_de_clase_de_la_actividad;
+            document.getElementById("estratoPersonal").textContent = data.Descripcion_estrato_personal_ocupado;
+            document.getElementById("vialidad").textContent = data.Nombre_de_la_vialidad;
+            document.getElementById("numeroExterior").textContent = data.Numero_exterior_o_kilometro;
+            document.getElementById("letraExterior").textContent = data.Letra_exterior;
+            document.getElementById("asentamiento").textContent = data.Nombre_de_asentamiento_humano;
+            document.getElementById("codigoPostal").textContent = data.Codigo_postal;
+            document.getElementById("entidadFederativa").textContent = data.Entidad_federetiva;
+            document.getElementById("municipio").textContent = data.Municipio;
+            document.getElementById("localidad").textContent = data.Localidad;
+            document.getElementById("telefono").textContent = data.Numero_de_telefono;
+            document.getElementById("correo").textContent = data.Correo_electronico;
+            document.getElementById("sitioWeb").textContent = data.Sitio_en_Internet || "No disponible";
+        });
 
         //Establecer el valor dek estado y la fecha
         document.getElementById("estadoSelect").value = estado || "En atención";

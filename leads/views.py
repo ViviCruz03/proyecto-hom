@@ -17,6 +17,31 @@ def obtener_unidades_json(request):
     return JsonResponse(list(unidades), safe=False)
 # ---- MAPA
 
+#Detalle completo de las unidades
+def detalle_unidad(request, unidad_id):
+    try:
+        unidad = UniEconomicas.objects.get(id=unidad_id)
+        data = {
+            "Nombre_de_la_Unidad_Economica": unidad.Nombre_de_la_Unidad_Economica,
+            "Razon_social": unidad.Razon_social,
+            "Nombre_de_clase_de_la_actividad": unidad.Nombre_de_clase_de_la_actividad,
+            "Descripcion_estrato_personal_ocupado": unidad.Descripcion_estrato_personal_ocupado,
+            "Nombre_de_la_vialidad": unidad.Nombre_de_la_vialidad,
+            "Numero_exterior_o_kilometro": unidad.Numero_exterior_o_kilometro,
+            "Letra_exterior": unidad.Letra_exterior,
+            "Nombre_de_asentamiento_humano": unidad.Nombre_de_asentamiento_humano,
+            "Codigo_postal": unidad.Codigo_postal,
+            "Entidad_federetiva": unidad.Entidad_federetiva,
+            "Municipio": unidad.Municipio,
+            "Localidad": unidad.Localidad,
+            "Numero_de_telefono": unidad.Numero_de_telefono,
+            "Correo_electronico": unidad.Correo_electronico,
+            "Sitio_en_Internet": unidad.Sitio_en_Internet,
+        }
+        return JsonResponse(data)
+    except UniEconomicas.DoesNotExist:
+        return JsonResponse({"error": "Unidad económica no encontrada"}, status=404)
+
 
 #----- GENERAL-----
 #Pantalla de home
